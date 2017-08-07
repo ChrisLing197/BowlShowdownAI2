@@ -17,7 +17,7 @@ Strategic weights:
 
 -Saving counters and checks for threats
 
--Getting free turns (Substitute blocking, Taunt, Phazing a switch, Spore, etc.)
+-Getting free turns (Substitute blocking, Taunt, Phazing a switch, Spore, Foddering, etc.)
 
 -Investing in future damage (hazards, toxic, etc.)
 
