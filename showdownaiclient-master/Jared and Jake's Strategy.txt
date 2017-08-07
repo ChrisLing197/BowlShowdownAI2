@@ -1,0 +1,26 @@
+Strategic weights:
+
+-Not fainting
+
+-Getting rid of threats
+	-Making opposing pokemon faint
+	-Making opposing pokemon less threatening (burn, para, tricked items, taunt, confusion, etc.)
+
+-Not revealing information
+
+-Forcing opponents to reveal information (through threat, or through phazing)
+
+-Setting up
+	-Getting rid of counters and checks
+	-Boosting stats for sweep
+	-Saving at least one sweeper (esp. without reveal) until its counters and checks have been removed
+
+-Saving counters and checks for threats
+
+-Getting free turns (Substitute blocking, Taunt, Phazing a switch, Spore, etc.)
+
+-Investing in future damage (hazards, toxic, etc.)
+
+-PP
+
+-Playing to outs (if an unlikely event is needed for victory, make the play that makes victory possible)
