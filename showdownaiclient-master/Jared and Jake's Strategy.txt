@@ -1,5 +1,7 @@
 Strategic weights:
 
+-As soon as an action starts a deterministic victory possiblity, taking that action or actions that improve win likelihood (scouting all opposing moves and pokemon, removing need for prediction, removing need for accuracy checks, etc.)
+
 -Not fainting
 
 -Getting rid of threats
@@ -24,3 +26,12 @@ Strategic weights:
 -PP
 
 -Playing to outs (if an unlikely event is needed for victory, make the play that makes victory possible)
+
+
+
+
+Suggestion:
+Three modes of operation, one for normal gameplay, one for possible win-scenarios, and one for possible lose-scenarios
+-Regular does not need to calculate win likelihood or lose likelihood
+-Win-scenarios only calculates win likelihood, offset by lose likelihood
+-Lose-scenarios only calculate lose likelihood, offset by win likelihood
