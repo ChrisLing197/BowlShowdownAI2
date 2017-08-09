@@ -4,7 +4,12 @@ var Pokemon = require('../zarel/battle-engine').BattlePokemon;
 var BattleSide = require('../zarel/battle-engine').BattleSide;
 
 class BowlAgent{
-	constructor(){this.name="Bowl";}
+	constructor(){
+		this.name="Bowl";
+		this.enemyTeam=[];
+		this.currentEnemy=-1;
+
+	}
 
 	fetch_random_key(obj) {
         var temp_key, keys = [];
@@ -17,7 +22,32 @@ class BowlAgent{
     }
 
     decide(gameState, options, mySide) {
-       
+       var nstate=gameState.copy();
+       nstate.me = mySide.n;
+
+       var d = new Date();
+       var n = d.getTime();
+       /*var b=true;
+       for(var i=0;i<enemyTeam.length;i++){
+       		if(enemyTeam[i].species==nstate.sides[1-nstate.me].active[0].species){
+       			b=false;
+       			currentEnemy=i;
+       		}
+       }
+       if(b){
+       		currentEnemy=enemyTeam.length;
+       		enemyTeam.push(nstate.sides[1-nstate.me].active[0]);
+
+       }
+       */
+       console.log("This pokemon is a "+nstate.sides[1-nstate.me].active[0].name+" with stats of "+nstate.sides[1-nstate.me].active[0].basestats.defense);
+
+       //Here for testing purposes
+       while ((new Date()).getTime() - n < 19500) {
+
+       }
+       var choice = this.fetch_random_key(options);
+       return choice;
     }
 
     assumePokemon(pname, plevel, pgender, side) {

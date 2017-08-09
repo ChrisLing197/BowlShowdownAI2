@@ -12,6 +12,7 @@ var BFSAgent = require('./agents/BFSAgent').Agent;
 var MinimaxAgent = require('./agents/MinimaxAgent').Agent;
 var SPAgent = require('./agents/TypeSelector').Agent;
 var PMMAgent = require('./agents/PBFS').Agent;
+var BowlAgent= require('./agents/BowlAgent').Agent;
 
 try {
     require.resolve('./zarel/config/config');
@@ -174,11 +175,12 @@ else {
     var scores = [];
 
     console.time('gametime');
-    for (var i = 0; i < 15; i++) {
+    for (var i = 0; i < 1; i++) {
         var game = new OfflineGame();
-        scores.push(game.playGames(new BFSAgent(), new RandomAgent(), 1, 'competitive'));
+        scores.push(game.playGames(new BowlAgent(), new RandomAgent(), 1, 'competitive'));
         
     }
     console.timeEnd('gametime');
     console.log(scores);
+    throw new Error("Something went badly wrong!");
 }
