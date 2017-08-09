@@ -40,12 +40,15 @@ class BowlAgent{
 
        }
        */
-       console.log("This pokemon is a "+nstate.sides[1-nstate.me].active[0].name+" with stats of "+nstate.sides[1-nstate.me].active[0].basestats.defense);
+       console.log("Our pokemon is a  "+nstate.sides[nstate.me].active[0].name+" with stats of "+nstate.sides[nstate.me].active[0].set.evs.def);
+       console.log("This pokemon is a "+nstate.sides[1-nstate.me].active[0].name+" of level "+nstate.sides[1-nstate.me].active[0].set.level+" with def evs of "+nstate.sides[1-nstate.me].active[0].set.evs.def+" with base stats of "+nstate.sides[1-nstate.me].active[0].baseStats.def+" with stats of "+nstate.sides[1-nstate.me].active[0].stats.def);
+
+
 
        //Here for testing purposes
-       while ((new Date()).getTime() - n < 19500) {
+       /*while ((new Date()).getTime() - n < 19500) {
 
-       }
+       }*/
        var choice = this.fetch_random_key(options);
        return choice;
     }
@@ -61,6 +64,7 @@ class BowlAgent{
             nature: "Hardy"
         };
         var basePokemon = new Pokemon(nSet, side);
+        console.log("This is assumePokemon on "+nSet.name);
         // If the species only has one ability, then the pokemon's ability can only have the one ability.
         // Barring zoroark, skill swap, and role play nonsense.
         // This will be pretty much how we digest abilities as well
