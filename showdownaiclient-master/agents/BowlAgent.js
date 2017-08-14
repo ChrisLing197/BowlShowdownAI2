@@ -36,27 +36,7 @@ class BowlAgent{
        	this.mySide = mySide.id;
        	var d = new Date();
        	var n = d.getTime();
-       //var b=true;
-       /*for(var i=0;i<this.enemyTeam.length;i++){
-       		if(this.enemyTeam[i].species==nstate.sides[1-nstate.me].active[0].species){
-       			b=false;
-       			this.currentEnemy=i;
-       		}
-       }*/
-       /*
-       if(b){
-       		this.currentEnemy=this.enemyTeam.length;
-       		this.enemyTeam.push(nstate.sides[1-nstate.me].active[0]);
-
-       }
-       */
-       //console.log(nstate.p1.getChoice)
-       //console.log("This is the opponent's moves "+nstate.sides[1-nstate.me].active[0].moves);
-      // console.log("Our pokemon is a  "+nstate.sides[nstate.me].active[0].name+" with stats of "+nstate.sides[nstate.me].active[0].set.evs.def);
-       //console.log("This pokemon is a "+nstate.sides[1-nstate.me].active[0].name+" of level "+nstate.sides[1-nstate.me].active[0].set.level+" with def evs of "+nstate.sides[1-nstate.me].active[0].set.evs.def+" with base stats of "+nstate.sides[1-nstate.me].active[0].baseStats.def+" with stats of "+nstate.sides[1-nstate.me].active[0].stats.def);
-
-
-
+      
        //Here for testing purposes
        /*while ((new Date()).getTime() - n < 19500) {
 
@@ -65,6 +45,7 @@ class BowlAgent{
        	var first=0;
        	var test=true;
        //console.log("my side "+this.mySide);
+       	//THIS IS FOR SETTING WHO WENT FIRST LAST TURN
        	for(var i=0;i<this.prevTurn.length;i++){
        		//console.log("thing "+this.prevTurn[i][2]);
        		if(this.prevTurn[i][2]){
