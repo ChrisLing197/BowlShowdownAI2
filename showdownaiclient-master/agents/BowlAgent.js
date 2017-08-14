@@ -8,7 +8,8 @@ class BowlAgent{
 		this.name="Bowl";
 		this.enemyTeam=[];
 		this.currentEnemy=-1;
-
+		this.prevChoice=null;
+		this.prevState=null;
 	}
 
 	fetch_random_key(obj) {
@@ -27,19 +28,21 @@ class BowlAgent{
 
        var d = new Date();
        var n = d.getTime();
-       /*var b=true;
-       for(var i=0;i<enemyTeam.length;i++){
-       		if(enemyTeam[i].species==nstate.sides[1-nstate.me].active[0].species){
+       //var b=true;
+       /*for(var i=0;i<this.enemyTeam.length;i++){
+       		if(this.enemyTeam[i].species==nstate.sides[1-nstate.me].active[0].species){
        			b=false;
-       			currentEnemy=i;
+       			this.currentEnemy=i;
        		}
-       }
+       }*/
+       /*
        if(b){
-       		currentEnemy=enemyTeam.length;
-       		enemyTeam.push(nstate.sides[1-nstate.me].active[0]);
+       		this.currentEnemy=this.enemyTeam.length;
+       		this.enemyTeam.push(nstate.sides[1-nstate.me].active[0]);
 
        }
        */
+       
        console.log("Our pokemon is a  "+nstate.sides[nstate.me].active[0].name+" with stats of "+nstate.sides[nstate.me].active[0].set.evs.def);
        console.log("This pokemon is a "+nstate.sides[1-nstate.me].active[0].name+" of level "+nstate.sides[1-nstate.me].active[0].set.level+" with def evs of "+nstate.sides[1-nstate.me].active[0].set.evs.def+" with base stats of "+nstate.sides[1-nstate.me].active[0].baseStats.def+" with stats of "+nstate.sides[1-nstate.me].active[0].stats.def);
 
@@ -50,6 +53,8 @@ class BowlAgent{
 
        }*/
        var choice = this.fetch_random_key(options);
+       this.prevChoice=choice;
+       this.prevState=nstate;
        return choice;
     }
 
@@ -59,7 +64,7 @@ class BowlAgent{
             name: pname,
             level: plevel,
             gender: pgender,
-            evs: { hp: 100, atk: 100, def: 100, spa: 100, spd: 100, spe: 0 },
+            evs: { hp: 85, atk: 85, def: 85, spa: 85, spd: 85, spe: 85 },
             ivs: { hp: 31, atk: 31, def: 31, spa: 31, spd: 31, spe: 31 },
             nature: "Hardy"
         };
@@ -73,12 +78,35 @@ class BowlAgent{
             basePokemon.ability = basePokemon.baseAbility;
             basePokemon.abilityData = { id: basePokemon.ability };
         }
+        //this.enemyTeam.push(basePokemon)
         return basePokemon;
     }
     digest(line) {
     }
 
     getTeam(format) {
+    }
+
+    updatePokemon(pname, plevel, pgender, side, hp, atk, def, spA, spD, spe, item, ability){
+    	var nSet = {
+            species: pname,
+            name: pname,
+            level: plevel,
+            gender: pgender,
+            evs: { hp: 85, atk: 85, def: 85, spa: 85, spd: 85, spe: 85 },
+            ivs: { hp: 31, atk: 31, def: 31, spa: 31, spd: 31, spe: 31 },
+            nature: "Hardy"
+        };
+        var basePokemon = new Pokemon(nSet, side);
+        basePokemon.stats.hp=hp;
+        basePokemon.stats.atk=atk;
+        basePokemon.stats.def=def;
+        basePokemon.stats.spa=spA;
+        basePokemon.stats.spd=spD;
+        basePokemon.stats.spe=spe;
+        basePokemon.ability=ability;
+        basePokemon.abilityData={id: basePokemon.ability};
+        return basePokemon;
     }
 }
 
