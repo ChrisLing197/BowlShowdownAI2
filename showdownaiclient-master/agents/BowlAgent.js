@@ -30,6 +30,22 @@ class BowlAgent{
         return Tools.parseRequestData(state.sides[player].getRequestData());
     }
 
+    getFirst(){
+    	
+    	for(var i=0;i<this.prevTurn.length;i++){
+       		//console.log("thing "+this.prevTurn[i][2]);
+       		if(this.prevTurn[i][2]){
+       			if(this.prevTurn[i][2].startsWith(this.mySide)){
+       				return 1;
+       			}
+       			else if(this.prevTurn[i][2].startsWith("p")){
+       				return 2;
+       			}
+       		}
+       	}
+       	return 0;
+    }
+
     decide(gameState, options, mySide) {
        	var nstate=gameState.copy();
        	nstate.me = mySide.n;
@@ -42,25 +58,13 @@ class BowlAgent{
 
        }*/
        
-       	var first=0;
-       	var test=true;
+       	var first=this.getFirst();
+       	
        //console.log("my side "+this.mySide);
        	//THIS IS FOR SETTING WHO WENT FIRST LAST TURN
-       	for(var i=0;i<this.prevTurn.length;i++){
-       		//console.log("thing "+this.prevTurn[i][2]);
-       		if(this.prevTurn[i][2]){
-       			if(this.prevTurn[i][2].startsWith(this.mySide)&&first==0){
-       				first=1;
-       			}
-       			else if(this.prevTurn[i][2].startsWith("p")&&first==0){
-       				first=2;
-       			}
-       			test=false;
-       		}
-       	}
-       	if(first==0){
-       		console.log("turn is "+this.prevTurn[0][2]);
-       		console.log(test);
+       	
+       	while(first==0){
+       		first=this.getFirst();
        	}
        	console.log("first is "+first);
        	var choice = this.fetch_random_key(options);
