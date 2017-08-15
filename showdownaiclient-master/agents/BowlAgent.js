@@ -8,6 +8,7 @@ class BowlAgent{
 		this.name="Bowl";
 		this.enemyTeam=[];
 		this.currentEnemy=-1;
+		this.prevEnemy=-1;
 		this.prevChoice=null;
 		this.prevState=null;
 		this.prevTurn=[];
@@ -36,9 +37,11 @@ class BowlAgent{
        		//console.log("thing "+this.prevTurn[i][2]);
        		if(this.prevTurn[i][2]){
        			if(this.prevTurn[i][2].startsWith(this.mySide)){
+       				console.log(this.prevTurn[i]);
        				return 1;
        			}
        			else if(this.prevTurn[i][2].startsWith("p")){
+       				console.log(this.prevTurn[i]);
        				return 2;
        			}
        		}
@@ -46,6 +49,36 @@ class BowlAgent{
        	return 0;
     }
 
+    getLastOpponentMove(){
+    	for(var i=0;i<this.prevTurn.length;i++){
+       		//console.log("thing "+this.prevTurn[i][2]);
+       		if(this.prevTurn[i][2]){
+       			if(!this.prevTurn[i][2].startsWith(this.mySide)&&this.prevTurn[i][2].startsWith("p")){
+       				if(this.prevTurn[i][1]=="switch"){
+       					return "switch";
+       				}
+       				else if(this.prevTurn[i][1]=="move"){
+       					return this.prevTurn[i][3];
+       				}
+       				else if(this.prevTurn[i][1]=="cant"){
+       					return "cant";
+       				}
+       			}
+       		}
+       	}
+       	return "snens";
+    }
+    /*
+    changeMoveFormat(move){
+    	move=move.toLowerCase();
+    	move=move.split(" ");
+    	var temp="";
+    	for(var i=0;i<move.length;i++){
+    		temp+=move[i];
+    	}
+    	return temp;
+    }
+    */
     decide(gameState, options, mySide) {
        	var nstate=gameState.copy();
        	nstate.me = mySide.n;
@@ -57,19 +90,58 @@ class BowlAgent{
        /*while ((new Date()).getTime() - n < 19500) {
 
        }*/
-       
+       	
+       	
+       	for(var i=0;i<this.enemyTeam.length;i++){
+       		if(this.enemyTeam[i].species==nstate.sides[1-nstate.me].active[0].species){
+       			
+       			
+       			this.currentEnemy=i;
+       		}
+       	}
        	var first=this.getFirst();
        	
-       //console.log("my side "+this.mySide);
-       	//THIS IS FOR SETTING WHO WENT FIRST LAST TURN
+       
        	
-       	while(first==0){
-       		first=this.getFirst();
-       	}
+       	
+       	
+       	       	
        	console.log("first is "+first);
+       	if(this.prevState){
+	       	if(first!=0){
+	       		console.log("turn is "+this.prevTurn[0][2]);
+	       		var lastMove=this.getLastOpponentMove();
+	       		console.log(Tools.getMove(lastMove).priority);
+	       		
+
+	       		console.log("the prevChoice is "+this.prevChoice+" and opponent's was "+lastMove);
+	       		if(lastMove!="switch"){
+	       			if(Tools.getMove(lastMove).priority==Tools.getMove(toId(this.prevChoice.id))){
+	       			//	console.log("test of move "+Tools.getMove(toId(this.prevChoice)).name);
+	       				console.log("prev speed of ours is "+this.prevState.sides[this.prevState.me].active[0].stats.spe);
+	       				console.log("prev speed of enemy is "+this.enemyTeam[this.prevEnemy].stats.spe);
+	       				if(first==1&&this.prevState.sides[this.prevState.me].active[0].getStat('spe',false,false)<this.enemyTeam[this.prevEnemy].getStat('spe',false,false)){
+	       					this.enemyTeam[this.prevEnemy].stats.spe=this.prevState.sides[this.prevState.me].active[0].stats.spe-1;
+	       				}
+	       				if(first==2&&this.prevState.sides[this.prevState.me].active[0].getStat('spe',false,false)>this.enemyTeam[this.prevEnemy].getStat('spe',false,false)){
+	       					this.enemyTeam[this.prevEnemy].stats.spe=this.prevState.sides[this.prevState.me].active[0].stats.spe+1;
+	       				}
+
+	       			}
+	       			if(lastMove!="cant"&&lastMove!="slp"){
+	       				lastMove=Tools.getMove(lastMove);
+
+	       			}
+	       			
+	       		}
+	       		else if(lastMove=="snens"){
+	       			throw new Error("Something went badly snens!");
+	       		}
+	       	}
+       	}
        	var choice = this.fetch_random_key(options);
-       	console.log("the choice is "+choice);
-      // console.log("the prevChoice is "+this.prevChoice);
+       	//console.log("the choice is "+choice);
+      	this.prevEnemy=this.currentEnemy;
       	this.prevChoice=choice;
     	this.prevState=nstate;
       	this.prevTurn=[];
@@ -102,7 +174,7 @@ class BowlAgent{
             basePokemon.abilityData = { id: basePokemon.ability };
         }
 
-        //this.enemyTeam.push(basePokemon)
+        this.enemyTeam.push(basePokemon)
         return basePokemon;
     }
     digest(line) {
@@ -113,6 +185,7 @@ class BowlAgent{
     }
 
     getTeam(format) {
+    	//throw new Error("Something went kek badly snens!");
     }
 
     updatePokemon(pname, plevel, pgender, side, hp, atk, def, spA, spD, spe, item, ability){
