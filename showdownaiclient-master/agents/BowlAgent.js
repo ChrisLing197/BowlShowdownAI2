@@ -68,6 +68,10 @@ class BowlAgent{
        	}
        	return "snens";
     }
+
+    minimax(){
+    	
+    }
     /*
     changeMoveFormat(move){
     	move=move.toLowerCase();
@@ -120,7 +124,10 @@ class BowlAgent{
 	       			//	console.log("test of move "+Tools.getMove(toId(this.prevChoice)).name);
 	       				console.log("prev speed of ours is "+this.prevState.sides[this.prevState.me].active[0].stats.spe);
 	       				console.log("prev speed of enemy is "+this.enemyTeam[this.prevEnemy].stats.spe);
+	       				var ourBoosts=this.prevState.sides[this.prevState.me].active[0].boosts;
+	       				var enBoosts=this.enemyTeam[this.prevEnemy].boosts;
 	       				if(first==1&&this.prevState.sides[this.prevState.me].active[0].getStat('spe',false,false)<this.enemyTeam[this.prevEnemy].getStat('spe',false,false)){
+
 	       					this.enemyTeam[this.prevEnemy].stats.spe=this.prevState.sides[this.prevState.me].active[0].stats.spe-1;
 	       				}
 	       				if(first==2&&this.prevState.sides[this.prevState.me].active[0].getStat('spe',false,false)>this.enemyTeam[this.prevEnemy].getStat('spe',false,false)){
