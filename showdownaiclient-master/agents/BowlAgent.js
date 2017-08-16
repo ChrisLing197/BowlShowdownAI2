@@ -261,8 +261,9 @@ class BowlAgent{
             cstate.baseMove = choice;
             var badstate = this.getWorstOutcome(cstate, choice, nstate.me);
             if (badstate.isTerminal) {
+
             	this.prevEnemy=this.currentEnemy;
-      			this.prevChoice=choice;
+      			this.prevChoice=badstate.baseMove;
     			this.prevState=nstate;
       			this.prevTurn=[];
                 return badstate.baseMove;
@@ -277,7 +278,7 @@ class BowlAgent{
             if (pQueue.isEmpty()) {
                 // console.log('FAILURE!');
                 this.prevEnemy=this.currentEnemy;
-      			this.prevChoice=choice;
+      			this.prevChoice=this.fetch_random_key(options);
     			this.prevState=nstate;
       			this.prevTurn=[];
                 return this.fetch_random_key(options);
@@ -285,15 +286,15 @@ class BowlAgent{
             var cState = pQueue.deq();
             var myTurnOptions = this.getOptions(cState, mySide.id);
             for (var choice in myTurnOptions) {
-                var nstate = this.getWorstOutcome(cState, choice, cState.me);
-                if (nstate && nstate.isTerminal) {
+                var dstate = this.getWorstOutcome(cState, choice, cState.me);
+                if (dstate && dstate.isTerminal) {
                 	this.prevEnemy=this.currentEnemy;
-      				this.prevChoice=choice;
+      				this.prevChoice=dstate.baseMove;
     				this.prevState=nstate;
       				this.prevTurn=[];
-                    return nstate.baseMove;
+                    return dstate.baseMove;
                 }
-                if (nstate && !nstate.badTerminal) {
+                if (dstate && !dstate.badTerminal) {
                     pQueue.enq(nstate);
                 }
             }
@@ -303,7 +304,7 @@ class BowlAgent{
         // console.log('oops I timed out!');
         if (!pQueue.isEmpty()) {
         	this.prevEnemy=this.currentEnemy;
-      		this.prevChoice=choice;
+      		this.prevChoice=pQueue.deq().baseMove;
     		this.prevState=nstate;
       		this.prevTurn=[];
             return pQueue.deq().baseMove;
