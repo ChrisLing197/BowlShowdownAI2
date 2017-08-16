@@ -216,7 +216,7 @@ class BowlAgent{
 	       				var enBoosts=this.prevState.sides[1-this.prevState.me].active[0].boosts;
 						let boostTable = [1, 1.5, 2, 2.5, 3, 3.5, 4];
 						var ourMult=Math.pow(boostTable[Math.abs(ourBoosts)],Math.sign(ourBoosts));
-						var enMult=boostTable[Math.abs(ourBoosts)]**Math.sign(enBoosts);
+						var enMult=Math.pow(boostTable[Math.abs(ourBoosts)],Math.sign(enBoosts));
 	       				if(first==1&&this.prevState.sides[this.prevState.me].active[0].getStat('spe',false,false)*ourMult<this.enemyTeam[this.prevEnemy].getStat('spe',false,false)*enMult){
 
 	       					this.enemyTeam[this.prevEnemy].stats.spe=Math.floor(this.prevState.sides[this.prevState.me].active[0].stats.spe/enMult)-Math.ceil(enMult);
