@@ -215,12 +215,15 @@ class BowlAgent{
 	       				console.log("prev speed of enemy is "+this.enemyTeam[this.prevEnemy].stats.spe);
 	       				var ourBoosts=this.prevState.sides[this.prevState.me].active[0].boosts;
 	       				var enBoosts=this.enemyTeam[this.prevEnemy].boosts;
-	       				if(first==1&&this.prevState.sides[this.prevState.me].active[0].getStat('spe',false,false)<this.enemyTeam[this.prevEnemy].getStat('spe',false,false)){
+						let boostTable = [1, 1.5, 2, 2.5, 3, 3.5, 4];
+						var ourMult=boostTable[ourBoosts-1]**Math.sign(ourBoosts);
+						var enMult=boostTable[enBoosts-1]**Math.sign(enBoosts);
+	       				if(first==1&&this.prevState.sides[this.prevState.me].active[0].getStat('spe',false,false)*ourMult<this.enemyTeam[this.prevEnemy].getStat('spe',false,false)*enMult){
 
-	       					this.enemyTeam[this.prevEnemy].stats.spe=this.prevState.sides[this.prevState.me].active[0].stats.spe-1;
+	       					this.enemyTeam[this.prevEnemy].stats.spe=(this.prevState.sides[this.prevState.me].active[0].stats.spe/enMult)-Math.ceil(enMult);
 	       				}
-	       				if(first==2&&this.prevState.sides[this.prevState.me].active[0].getStat('spe',false,false)>this.enemyTeam[this.prevEnemy].getStat('spe',false,false)){
-	       					this.enemyTeam[this.prevEnemy].stats.spe=this.prevState.sides[this.prevState.me].active[0].stats.spe+1;
+	       				if(first==2&&this.prevState.sides[this.prevState.me].active[0].getStat('spe',false,false)*ourMult>this.enemyTeam[this.prevEnemy].getStat('spe',false,false)*enMult){
+	       					this.enemyTeam[this.prevEnemy].stats.spe=(this.prevState.sides[this.prevState.me].active[0].stats.spe/enMult)+Math.floor(enMult);
 	       				}
 
 	       			}
