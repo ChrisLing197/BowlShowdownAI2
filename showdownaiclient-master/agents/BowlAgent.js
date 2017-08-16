@@ -24,32 +24,91 @@ class BowlAgent{
         return keys[Math.floor(Math.random() * keys.length)];
     }
 
-   	evaluateState(state, prevState){
-
-   		var myp = state.sides[state.me].active[0].hp / state.sides[state.me].active[0].maxhp;
-        var thp = state.sides[1 - state.me].active[0].hp / state.sides[1 - state.me].active[0].maxhp;
-        var prevMyP=prevState.sides[prevState.me].active[0].hp / prevState.sides[prevState.me].active[0].maxhp;
-        var prevThP=prevState.sides[1-prevState.me].active[0].hp / prevState.sides[1-prevState.me].active[0].maxhp;
-
-        var mygotStatus=0;
-        if(state.sides[state.me].active[0].status!=''&&prevState.sides[prevState.me].active[0].status==''){
-        	if(state.sides[state.me].active[0].status=='brn'){
-        		if(state.sides[state.me].active[0].stats.atk>=state.sides[state.me].active[0].stats.spa){
-        			mygotStatus=3;
-        		}
-        		if
-
-        	}
-        }
-
-   	}
-
     getOptions(state, player) {
         if (typeof (player) == 'string' && player.startsWith('p')) {
             player = parseInt(player.substring(1)) - 1;
         }
         return Tools.parseRequestData(state.sides[player].getRequestData());
     }
+
+   	evaluateState(state, prevState, player){
+
+   		var myp = state.sides[player].active[0].hp / state.sides[player].active[0].maxhp;
+        var thp = state.sides[1 - player].active[0].hp / state.sides[1 - player].active[0].maxhp;
+        var prevMyP=prevState.sides[player].active[0].hp / prevState.sides[player].active[0].maxhp;
+        var prevThP=prevState.sides[1-player].active[0].hp / prevState.sides[1-player].active[0].maxhp;
+
+        var mygotStatus=0;
+        if(state.sides[player].active[0].status!=''&&prevState.sides[player].active[0].status==''){
+        	if(state.sides[player].active[0].status=='brn'){
+        		if(state.sides[player].active[0].stats.atk>=state.sides[player].active[0].stats.spa){
+        			mygotStatus=2.5;
+        		}
+        		else{
+        			mygotStatus=0.5;
+        		}
+        	}
+        	if(state.sides[player].active[0].status=='tox'){
+        		mygotStatus=2;
+        	}
+        	if(state.sides[player].active[0].status=='psn'){
+        		mygotStatus=1;
+        	}
+        	if(state.sides[player].active[0].status=='slp'){
+        		mygotStatus=3;
+        	}
+        	if(state.sides[player].active[0].status=='frz'){
+        		mygotStatus=3;
+        	}
+        	if(state.sides[player].active[0].status=='par'){
+        		mygotStatus=2;
+        	}
+        }
+        var thgotStatus=0;
+        if(state.sides[1-player].active[0].status!=''&&prevState.sides[1-player].active[0].status==''){
+        	if(state.sides[1-player].active[0].status=='brn'){
+        		if(state.sides[1-player].active[0].stats.atk>=state.sides[1-player].active[0].stats.spa){
+        			thgotStatus=2.5;
+        		}
+        		else{
+        			thgotStatus=0.5;
+        		}
+        	}
+        	if(state.sides[1-player].active[0].status=='tox'){
+        		thgotStatus=2;
+        	}
+        	if(state.sides[1-player].active[0].status=='psn'){
+        		thgotStatus=1;
+        	}
+        	if(state.sides[1-player].active[0].status=='slp'){
+        		thgotStatus=3;
+        	}
+        	if(state.sides[1-player].active[0].status=='frz'){
+        		thgotStatus=3;
+        	}
+        	if(state.sides[1-player].active[0].status=='par'){
+        		thgotStatus=2;
+        	}
+        }
+
+        return (2*(thp-prevThP)+(thgotStatus/4))-((myp-prevMyP)+(mygotStatus/2))-0.3*state.turn;
+   	}
+
+   	getWorstOutcome(state, playerChoice, player) {
+        var nstate = state.copy();
+        var oppChoices = this.getOptions(nstate, 1 - player);
+        var worststate = null;
+        for (var choice in oppChoices) {
+            var cstate = nstate.copy();
+            cstate.choose('p' + (player + 1), playerChoice);
+            cstate.choose('p' + (1 - player + 1), choice);
+            if (worststate == null || this.evaluateState(cstate, nstate,  player) < this.evaluateState(worststate, nstate, player)) {
+                worststate = cstate;
+            }
+        }
+        return worststate;
+    }
+    
 
     getFirst(){
     	
@@ -89,14 +148,6 @@ class BowlAgent{
        	return "snens";
     }
 
-    minimax(gameState, options, mySide, enemyTeam, timeLeft, depth){
-    	if(timeLeft<=0 || depth<=0){
-    		return 0;
-    	}
-
-    	
-
-    }
     /*
     changeMoveFormat(move){
     	move=move.toLowerCase();
@@ -109,16 +160,28 @@ class BowlAgent{
     }
     */
     decide(gameState, options, mySide) {
-       	var nstate=gameState.copy();
-       	nstate.me = mySide.n;
-       	this.mySide = mySide.id;
        	var d = new Date();
-       	var n = d.getTime();
-      
-       //Here for testing purposes
-       /*while ((new Date()).getTime() - n < 19500) {
+        var n = d.getTime();
+        // It is important to start by making a deep copy of gameState.  We want to avoid accidentally modifying the gamestate.
+        var nstate = gameState.copy();
+        nstate.p1.currentRequest = 'move';
+        nstate.p2.currentRequest = 'move';
+        nstate.me = mySide.n;
+        this.mySID = mySide.n;
+        this.mySide = mySide.id;
 
-       }*/
+        function battleSend(type, data) {
+            if (this.sides[1 - this.me].active[0].hp == 0) {
+                this.isTerminal = true;
+            }
+            else if (this.sides[1 - this.me].currentRequest == 'switch' || this.sides[this.me].active[0].hp == 0) {
+                this.badTerminal = true;
+            }
+        }
+
+        nstate.send = battleSend;
+      
+       	
        	
        	
        	for(var i=0;i<this.enemyTeam.length;i++){
@@ -174,12 +237,82 @@ class BowlAgent{
        	}
 
        	nstate.sides[1-nstate.me].active[0]=this.enemyTeam[this.currentEnemy];
+
+
+
+       	var pQueue = new PriorityQueue(function (a, b) {
+            var myp = a.sides[a.me].active[0].hp / a.sides[a.me].active[0].maxhp;
+            var thp = a.sides[1 - a.me].active[0].hp / a.sides[1 - a.me].active[0].maxhp;
+            var aeval = myp - 3 * thp - 0.3 * a.turn;
+
+            var mypb = b.sides[b.me].active[0].hp / b.sides[b.me].active[0].maxhp;
+            var thpb = b.sides[1 - b.me].active[0].hp / b.sides[1 - b.me].active[0].maxhp;
+            var beval = mypb - 3 * thpb - 0.3 * b.turn;
+
+            return aeval - beval;
+            }
+        );
+        
+        for (var choice in options) {
+            var cstate = nstate.copy();
+            cstate.baseMove = choice;
+            var badstate = this.getWorstOutcome(cstate, choice, nstate.me);
+            if (badstate.isTerminal) {
+            	this.prevEnemy=this.currentEnemy;
+      			this.prevChoice=choice;
+    			this.prevState=nstate;
+      			this.prevTurn=[];
+                return badstate.baseMove;
+            }
+            if (!badstate.badTerminal) {
+                pQueue.enq(badstate);
+            }
+        }
+
+        
+        while ((new Date()).getTime() - n <= 19000) {
+            if (pQueue.isEmpty()) {
+                // console.log('FAILURE!');
+                this.prevEnemy=this.currentEnemy;
+      			this.prevChoice=choice;
+    			this.prevState=nstate;
+      			this.prevTurn=[];
+                return this.fetch_random_key(options);
+            }
+            var cState = pQueue.deq();
+            var myTurnOptions = this.getOptions(cState, mySide.id);
+            for (var choice in myTurnOptions) {
+                var nstate = this.getWorstOutcome(cState, choice, cState.me);
+                if (nstate && nstate.isTerminal) {
+                	this.prevEnemy=this.currentEnemy;
+      				this.prevChoice=choice;
+    				this.prevState=nstate;
+      				this.prevTurn=[];
+                    return nstate.baseMove;
+                }
+                if (nstate && !nstate.badTerminal) {
+                    pQueue.enq(nstate);
+                }
+            }
+            
+
+        }
+        // console.log('oops I timed out!');
+        if (!pQueue.isEmpty()) {
+        	this.prevEnemy=this.currentEnemy;
+      		this.prevChoice=choice;
+    		this.prevState=nstate;
+      		this.prevTurn=[];
+            return pQueue.deq().baseMove;
+        }
+        
        	var choice = this.fetch_random_key(options);
        	//console.log("the choice is "+choice);
       	this.prevEnemy=this.currentEnemy;
       	this.prevChoice=choice;
     	this.prevState=nstate;
       	this.prevTurn=[];
+
      	return choice;
     }
 
