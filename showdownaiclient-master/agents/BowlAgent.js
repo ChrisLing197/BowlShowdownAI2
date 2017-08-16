@@ -24,6 +24,26 @@ class BowlAgent{
         return keys[Math.floor(Math.random() * keys.length)];
     }
 
+   	evaluateState(state, prevState){
+
+   		var myp = state.sides[state.me].active[0].hp / state.sides[state.me].active[0].maxhp;
+        var thp = state.sides[1 - state.me].active[0].hp / state.sides[1 - state.me].active[0].maxhp;
+        var prevMyP=prevState.sides[prevState.me].active[0].hp / prevState.sides[prevState.me].active[0].maxhp;
+        var prevThP=prevState.sides[1-prevState.me].active[0].hp / prevState.sides[1-prevState.me].active[0].maxhp;
+
+        var mygotStatus=0;
+        if(state.sides[state.me].active[0].status!=''&&prevState.sides[prevState.me].active[0].status==''){
+        	if(state.sides[state.me].active[0].status=='brn'){
+        		if(state.sides[state.me].active[0].stats.atk>=state.sides[state.me].active[0].stats.spa){
+        			mygotStatus=3;
+        		}
+        		if
+
+        	}
+        }
+
+   	}
+
     getOptions(state, player) {
         if (typeof (player) == 'string' && player.startsWith('p')) {
             player = parseInt(player.substring(1)) - 1;
@@ -69,8 +89,13 @@ class BowlAgent{
        	return "snens";
     }
 
-    minimax(){
+    minimax(gameState, options, mySide, enemyTeam, timeLeft, depth){
+    	if(timeLeft<=0 || depth<=0){
+    		return 0;
+    	}
+
     	
+
     }
     /*
     changeMoveFormat(move){
@@ -103,6 +128,7 @@ class BowlAgent{
        			this.currentEnemy=i;
        		}
        	}
+
        	var first=this.getFirst();
        	
        
@@ -146,6 +172,8 @@ class BowlAgent{
 	       		}
 	       	}
        	}
+
+       	nstate.sides[1-nstate.me].active[0]=this.enemyTeam[this.currentEnemy];
        	var choice = this.fetch_random_key(options);
        	//console.log("the choice is "+choice);
       	this.prevEnemy=this.currentEnemy;
@@ -171,7 +199,7 @@ class BowlAgent{
             nSet.moves.push(toId(template.randomBattleMoves[moveid]));
         }
         var basePokemon = new Pokemon(nSet, side);
-       // console.log("This is assumePokemon on "+nSet.name);
+      	// console.log("This is assumePokemon on "+nSet.name);
         // If the species only has one ability, then the pokemon's ability can only have the one ability.
         // Barring zoroark, skill swap, and role play nonsense.
         // This will be pretty much how we digest abilities as well
@@ -194,7 +222,7 @@ class BowlAgent{
     getTeam(format) {
     	//throw new Error("Something went kek badly snens!");
     }
-
+    /*
     updatePokemon(pname, plevel, pgender, side, hp, atk, def, spA, spD, spe, item, ability){
     	var nSet = {
             species: pname,
@@ -217,6 +245,7 @@ class BowlAgent{
         basePokemon.abilityData={id: basePokemon.ability};
         return basePokemon;
     }
+    */
 }
 
 exports.Agent=BowlAgent;
