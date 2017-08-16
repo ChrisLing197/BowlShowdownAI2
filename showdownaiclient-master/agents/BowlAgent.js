@@ -31,67 +31,66 @@ class BowlAgent{
         return Tools.parseRequestData(state.sides[player].getRequestData());
     }
 
-   	evaluateState(state, prevState, player){
+   	evaluateState(state, player){
 
    		var myp = state.sides[player].active[0].hp / state.sides[player].active[0].maxhp;
         var thp = state.sides[1 - player].active[0].hp / state.sides[1 - player].active[0].maxhp;
-        var prevMyP=prevState.sides[player].active[0].hp / prevState.sides[player].active[0].maxhp;
-        var prevThP=prevState.sides[1-player].active[0].hp / prevState.sides[1-player].active[0].maxhp;
+        
 
         var mygotStatus=0;
-        if(state.sides[player].active[0].status!=''&&prevState.sides[player].active[0].status==''){
-        	if(state.sides[player].active[0].status=='brn'){
-        		if(state.sides[player].active[0].stats.atk>=state.sides[player].active[0].stats.spa){
-        			mygotStatus=2.5;
-        		}
-        		else{
-        			mygotStatus=0.5;
-        		}
+      
+        if(state.sides[player].active[0].status=='brn'){
+        	if(state.sides[player].active[0].stats.atk>=state.sides[player].active[0].stats.spa){
+        		mygotStatus=2.5;
         	}
-        	if(state.sides[player].active[0].status=='tox'){
-        		mygotStatus=2;
-        	}
-        	if(state.sides[player].active[0].status=='psn'){
-        		mygotStatus=1;
-        	}
-        	if(state.sides[player].active[0].status=='slp'){
-        		mygotStatus=3;
-        	}
-        	if(state.sides[player].active[0].status=='frz'){
-        		mygotStatus=3;
-        	}
-        	if(state.sides[player].active[0].status=='par'){
-        		mygotStatus=2;
+        	else{
+        		mygotStatus=0.5;
         	}
         }
+        if(state.sides[player].active[0].status=='tox'){
+        	mygotStatus=2;
+        }
+        if(state.sides[player].active[0].status=='psn'){
+        	mygotStatus=1;
+        }
+        if(state.sides[player].active[0].status=='slp'){
+        	mygotStatus=3;
+        }
+        if(state.sides[player].active[0].status=='frz'){
+        	mygotStatus=3;
+        }
+        if(state.sides[player].active[0].status=='par'){
+        	mygotStatus=2;
+        }
+        
         var thgotStatus=0;
-        if(state.sides[1-player].active[0].status!=''&&prevState.sides[1-player].active[0].status==''){
-        	if(state.sides[1-player].active[0].status=='brn'){
-        		if(state.sides[1-player].active[0].stats.atk>=state.sides[1-player].active[0].stats.spa){
-        			thgotStatus=2.5;
-        		}
-        		else{
-        			thgotStatus=0.5;
-        		}
+       
+        if(state.sides[1-player].active[0].status=='brn'){
+        	if(state.sides[1-player].active[0].stats.atk>=state.sides[1-player].active[0].stats.spa){
+        		thgotStatus=2.5;
         	}
-        	if(state.sides[1-player].active[0].status=='tox'){
-        		thgotStatus=2;
-        	}
-        	if(state.sides[1-player].active[0].status=='psn'){
-        		thgotStatus=1;
-        	}
-        	if(state.sides[1-player].active[0].status=='slp'){
-        		thgotStatus=3;
-        	}
-        	if(state.sides[1-player].active[0].status=='frz'){
-        		thgotStatus=3;
-        	}
-        	if(state.sides[1-player].active[0].status=='par'){
-        		thgotStatus=2;
+        	else{
+        		thgotStatus=0.5;
         	}
         }
+        if(state.sides[1-player].active[0].status=='tox'){
+        		thgotStatus=2;
+        }
+        if(state.sides[1-player].active[0].status=='psn'){
+       		thgotStatus=1;
+        }
+        if(state.sides[1-player].active[0].status=='slp'){
+        	thgotStatus=3;
+        }
+       	if(state.sides[1-player].active[0].status=='frz'){
+        	thgotStatus=3;
+        }
+        if(state.sides[1-player].active[0].status=='par'){
+       		thgotStatus=2;
+        }
+        
 
-        return (2*(thp-prevThP)+(thgotStatus/4))-((myp-prevMyP)+(mygotStatus/2))-0.3*state.turn;
+        return (myp+(thgotStatus/6))-(3*thp+(mygotStatus/3))-0.3*state.turn;
    	}
 
    	getWorstOutcome(state, playerChoice, player) {
@@ -102,7 +101,7 @@ class BowlAgent{
             var cstate = nstate.copy();
             cstate.choose('p' + (player + 1), playerChoice);
             cstate.choose('p' + (1 - player + 1), choice);
-            if (worststate == null || this.evaluateState(cstate, nstate,  player) < this.evaluateState(worststate, nstate, player)) {
+            if (worststate == null || this.evaluateState(cstate,  player) < this.evaluateState(worststate, player)) {
                 worststate = cstate;
             }
         }
@@ -244,6 +243,7 @@ class BowlAgent{
 
 
        	var pQueue = new PriorityQueue(function (a, b) {
+       		/*
             var myp = a.sides[a.me].active[0].hp / a.sides[a.me].active[0].maxhp;
             var thp = a.sides[1 - a.me].active[0].hp / a.sides[1 - a.me].active[0].maxhp;
             var aeval = myp - 3 * thp - 0.3 * a.turn;
@@ -253,6 +253,120 @@ class BowlAgent{
             var beval = mypb - 3 * thpb - 0.3 * b.turn;
 
             return aeval - beval;
+            */
+            var myp = a.sides[a.me].active[0].hp / a.sides[a.me].active[0].maxhp;
+	        var thp = a.sides[1 - a.me].active[0].hp / a.sides[1 - a.me].active[0].maxhp;
+	        var mygotStatus=0;      
+	        if(a.sides[a.me].active[0].status=='brn'){
+	        	if(a.sides[a.me].active[0].stats.atk>=a.sides[a.me].active[0].stats.spa){
+	        		mygotStatus=2.5;
+	        	}
+	        	else{
+	        		mygotStatus=0.5;
+	        	}
+	        }
+	        if(a.sides[a.me].active[0].status=='tox'){
+	        	mygotStatus=2;
+	        }
+	        if(a.sides[a.me].active[0].status=='psn'){
+	        	mygotStatus=1;
+	        }
+	        if(a.sides[a.me].active[0].status=='slp'){
+	        	mygotStatus=3;
+	        }
+	        if(a.sides[a.me].active[0].status=='frz'){
+	        	mygotStatus=3;
+	        }
+	        if(a.sides[a.me].active[0].status=='par'){
+	        	mygotStatus=2;
+	        }
+	        
+	        var thgotStatus=0;
+	       
+	        if(a.sides[1-a.me].active[0].status=='brn'){
+	        	if(a.sides[1-a.me].active[0].stats.atk>=a.sides[1-a.me].active[0].stats.spa){
+	        		thgotStatus=2.5;
+	        	}
+	        	else{
+	        		thgotStatus=0.5;
+	        	}
+	        }
+	        if(a.sides[1-a.me].active[0].status=='tox'){
+	        		thgotStatus=2;
+	        }
+	        if(a.sides[1-a.me].active[0].status=='psn'){
+	       		thgotStatus=1;
+	        }
+	        if(a.sides[1-a.me].active[0].status=='slp'){
+	        	thgotStatus=3;
+	        }
+	       	if(a.sides[1-a.me].active[0].status=='frz'){
+	        	thgotStatus=3;
+	        }
+	        if(a.sides[1-a.me].active[0].status=='par'){
+	       		thgotStatus=2;
+	        }
+	        
+
+	        var aeval = (myp+(thgotStatus/6))-(3*thp+(mygotStatus/3))-0.3*a.turn;
+
+	        var mypb = b.sides[b.me].active[0].hp / b.sides[b.me].active[0].maxhp;
+	        var thpb = b.sides[1 - b.me].active[0].hp / b.sides[1 - b.me].active[0].maxhp;
+	        var mygotStatusb=0;      
+	        if(b.sides[b.me].active[0].status=='brn'){
+	        	if(b.sides[b.me].active[0].stats.atk>=b.sides[b.me].active[0].stats.spa){
+	        		mygotStatus=2.5;
+	        	}
+	        	else{
+	        		mygotStatus=0.5;
+	        	}
+	        }
+	        if(b.sides[b.me].active[0].status=='tox'){
+	        	mygotStatus=2;
+	        }
+	        if(b.sides[b.me].active[0].status=='psn'){
+	        	mygotStatus=1;
+	        }
+	        if(b.sides[b.me].active[0].status=='slp'){
+	        	mygotStatus=3;
+	        }
+	        if(b.sides[b.me].active[0].status=='frz'){
+	        	mygotStatus=3;
+	        }
+	        if(b.sides[b.me].active[0].status=='par'){
+	        	mygotStatus=2;
+	        }
+	        
+	        var thgotStatusb=0;
+	       
+	        if(b.sides[1-b.me].active[0].status=='brn'){
+	        	if(b.sides[1-b.me].active[0].stats.atk>=b.sides[1-b.me].active[0].stats.spa){
+	        		thgotStatus=2.5;
+	        	}
+	        	else{
+	        		thgotStatus=0.5;
+	        	}
+	        }
+	        if(b.sides[1-b.me].active[0].status=='tox'){
+	        		thgotStatus=2;
+	        }
+	        if(b.sides[1-b.me].active[0].status=='psn'){
+	       		thgotStatus=1;
+	        }
+	        if(b.sides[1-b.me].active[0].status=='slp'){
+	        	thgotStatus=3;
+	        }
+	       	if(b.sides[1-b.me].active[0].status=='frz'){
+	        	thgotStatus=3;
+	        }
+	        if(b.sides[1-b.me].active[0].status=='par'){
+	       		thgotStatus=2;
+	        }
+	        
+
+	        var beval = (mypb+(thgotStatusb/6))-(3*thpb+(mygotStatusb/3))-0.3*b.turn;
+            
+            return aeval-beval;
             }
         );
         
