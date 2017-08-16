@@ -209,7 +209,7 @@ class BowlAgent{
 
 	       		console.log("the prevChoice is "+this.prevChoice+" and opponent's was "+lastMove);
 	       		if(lastMove!="switch"){
-	       			if(Tools.getMove(lastMove).priority==Tools.getMove(toId(this.prevChoice.id))){
+	       			if(Tools.getMove(lastMove).priority==Tools.getMove(toId(this.prevChoice.id)).priority){
 	       			//	console.log("test of move "+Tools.getMove(toId(this.prevChoice)).name);
 	       				console.log("prev speed of ours is "+this.prevState.sides[this.prevState.me].active[0].stats.spe);
 	       				console.log("prev speed of enemy is "+this.enemyTeam[this.prevEnemy].stats.spe);
