@@ -2,6 +2,7 @@
 
 var Pokemon = require('../zarel/battle-engine').BattlePokemon;
 var BattleSide = require('../zarel/battle-engine').BattleSide;
+var PriorityQueue = require('priorityqueuejs');
 
 class BowlAgent{
 	constructor(){
@@ -115,11 +116,11 @@ class BowlAgent{
        		//console.log("thing "+this.prevTurn[i][2]);
        		if(this.prevTurn[i][2]){
        			if(this.prevTurn[i][2].startsWith(this.mySide)){
-       				console.log(this.prevTurn[i]);
+       				//console.log(this.prevTurn[i]);
        				return 1;
        			}
        			else if(this.prevTurn[i][2].startsWith("p")){
-       				console.log(this.prevTurn[i]);
+       			//	console.log(this.prevTurn[i]);
        				return 2;
        			}
        		}
@@ -198,15 +199,15 @@ class BowlAgent{
        	
        	
        	       	
-       	console.log("first is "+first);
+      // 	console.log("first is "+first);
        	if(this.prevState){
 	       	if(first!=0){
 	       		console.log("turn is "+this.prevTurn[0][2]);
 	       		var lastMove=this.getLastOpponentMove();
-	       		console.log(Tools.getMove(lastMove).priority);
+	       	//	console.log(Tools.getMove(lastMove).priority);
 	       		
 
-	       		console.log("the prevChoice is "+this.prevChoice+" and opponent's was "+lastMove);
+	       	//	console.log("the prevChoice is "+this.prevChoice+" and opponent's was "+lastMove);
 	       		if(lastMove!="switch"){
 	       			if(Tools.getMove(lastMove).priority==Tools.getMove(toId(this.prevChoice.id)).priority){
 	       			//	console.log("test of move "+Tools.getMove(toId(this.prevChoice)).name);
@@ -214,9 +215,9 @@ class BowlAgent{
 	       				console.log("prev speed of enemy is "+this.enemyTeam[this.prevEnemy].stats.spe);
 	       				var ourBoosts=this.prevState.sides[this.prevState.me].active[0].boosts;
 	       				var enBoosts=this.prevState.sides[1-this.prevState.me].active[0].boosts;
-						let boostTable = [1, 1.5, 2, 2.5, 3, 3.5, 4];
-						var ourMult=Math.pow(boostTable[Math.abs(ourBoosts)],Math.sign(ourBoosts));
-						var enMult=Math.pow(boostTable[Math.abs(ourBoosts)],Math.sign(enBoosts));
+				    		let boostTable = [1, 1.5, 2, 2.5, 3, 3.5, 4];
+				    		var ourMult=Math.pow(boostTable[Math.abs(ourBoosts)],Math.sign(ourBoosts));
+					     	var enMult=Math.pow(boostTable[Math.abs(ourBoosts)],Math.sign(enBoosts));
 	       				if(first==1&&this.prevState.sides[this.prevState.me].active[0].getStat('spe',false,false)*ourMult<this.enemyTeam[this.prevEnemy].getStat('spe',false,false)*enMult){
 
 	       					this.enemyTeam[this.prevEnemy].stats.spe=Math.floor(this.prevState.sides[this.prevState.me].active[0].stats.spe/enMult)-Math.ceil(enMult);
@@ -372,15 +373,18 @@ class BowlAgent{
         
         for (var choice in options) {
             var cstate = nstate.copy();
+            //console.log(choice);
             cstate.baseMove = choice;
+          
             var badstate = this.getWorstOutcome(cstate, choice, nstate.me);
+             // console.log(badstate.baseMove);
             if (badstate.isTerminal) {
-
-            	this.prevEnemy=this.currentEnemy;
-      			this.prevChoice=badstate.baseMove;
-    			this.prevState=nstate;
-      			this.prevTurn=[];
-                return badstate.baseMove;
+                console.log("a");
+            	  this.prevEnemy=this.currentEnemy;
+      			    this.prevChoice=badstate.baseMove;
+    			      this.prevState=nstate;
+      		      this.prevTurn=[];
+                return this.prevChoice;
             }
             if (!badstate.badTerminal) {
                 pQueue.enq(badstate);
@@ -391,25 +395,29 @@ class BowlAgent{
         while ((new Date()).getTime() - n <= 19000) {
             if (pQueue.isEmpty()) {
                 // console.log('FAILURE!');
+                console.log("b");
                 this.prevEnemy=this.currentEnemy;
-      			this.prevChoice=this.fetch_random_key(options);
-    			this.prevState=nstate;
-      			this.prevTurn=[];
-                return this.fetch_random_key(options);
+      		    	this.prevChoice=this.fetch_random_key(options);
+    		      	this.prevState=nstate;
+      		    	this.prevTurn=[];
+                return this.prevChoice;
             }
             var cState = pQueue.deq();
+
             var myTurnOptions = this.getOptions(cState, mySide.id);
             for (var choice in myTurnOptions) {
                 var dstate = this.getWorstOutcome(cState, choice, cState.me);
+                //dstate.baseMove=;
                 if (dstate && dstate.isTerminal) {
-                	this.prevEnemy=this.currentEnemy;
-      				this.prevChoice=dstate.baseMove;
-    				this.prevState=nstate;
-      				this.prevTurn=[];
-                    return dstate.baseMove;
+                     console.log("c");
+                   	this.prevEnemy=this.currentEnemy;
+      		      		this.prevChoice=dstate.baseMove;
+    		        		this.prevState=nstate;
+      		      		this.prevTurn=[];
+                    return this.prevChoice;
                 }
                 if (dstate && !dstate.badTerminal) {
-                    pQueue.enq(nstate);
+                    pQueue.enq(dstate);
                 }
             }
             
@@ -417,18 +425,22 @@ class BowlAgent{
         }
         // console.log('oops I timed out!');
         if (!pQueue.isEmpty()) {
+           console.log("d");
         	this.prevEnemy=this.currentEnemy;
+         // var thing=pQueue.deq().baseMove;
       		this.prevChoice=pQueue.deq().baseMove;
-    		this.prevState=nstate;
+    		  this.prevState=nstate;
       		this.prevTurn=[];
-            return pQueue.deq().baseMove;
+          //1console.log(pQueue.deq());
+          console.log(pQueue.isEmpty());
+            return this.prevChoice;
         }
-        
+         console.log("e");
        	var choice = this.fetch_random_key(options);
        	//console.log("the choice is "+choice);
       	this.prevEnemy=this.currentEnemy;
-      	this.prevChoice=choice;
-    	this.prevState=nstate;
+        this.prevChoice=choice;
+    	  this.prevState=nstate;
       	this.prevTurn=[];
 
      	return choice;
@@ -459,7 +471,7 @@ class BowlAgent{
             basePokemon.ability = basePokemon.baseAbility;
             basePokemon.abilityData = { id: basePokemon.ability };
         }
-
+        basePokemon.trapped=false;
         this.enemyTeam.push(basePokemon)
         return basePokemon;
     }
