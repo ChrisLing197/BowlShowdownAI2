@@ -91,7 +91,7 @@ class BowlAgent{
         }
         
 
-        return (myp+(thgotStatus/6))-(3*thp+(mygotStatus/3))-0.3*state.turn;
+        return (myp+(thgotStatus/9))-(3*thp+(mygotStatus/9))-0.3*state.turn;
    	}
 
    	getWorstOutcome(state, playerChoice, player) {
@@ -145,20 +145,10 @@ class BowlAgent{
        			}
        		}
        	}
-       	return "snens";
+       	return "error";
     }
 
-    /*
-    changeMoveFormat(move){
-    	move=move.toLowerCase();
-    	move=move.split(" ");
-    	var temp="";
-    	for(var i=0;i<move.length;i++){
-    		temp+=move[i];
-    	}
-    	return temp;
-    }
-    */
+    
     decide(gameState, options, mySide) {
        	var d = new Date();
         var n = d.getTime();
@@ -202,7 +192,7 @@ class BowlAgent{
       // 	console.log("first is "+first);
        	if(this.prevState){
 	       	if(first!=0){
-	       		console.log("turn is "+this.prevTurn[0][2]);
+	       	//	console.log("turn is "+this.prevTurn[0][2]);
 	       		var lastMove=this.getLastOpponentMove();
 	       	//	console.log(Tools.getMove(lastMove).priority);
 	       		
@@ -211,8 +201,8 @@ class BowlAgent{
 	       		if(lastMove!="switch"){
 	       			if(Tools.getMove(lastMove).priority==Tools.getMove(toId(this.prevChoice.id)).priority){
 	       			//	console.log("test of move "+Tools.getMove(toId(this.prevChoice)).name);
-	       				console.log("prev speed of ours is "+this.prevState.sides[this.prevState.me].active[0].stats.spe);
-	       				console.log("prev speed of enemy is "+this.enemyTeam[this.prevEnemy].stats.spe);
+	       			//	console.log("prev speed of ours is "+this.prevState.sides[this.prevState.me].active[0].stats.spe);
+	       			//	console.log("prev speed of enemy is "+this.enemyTeam[this.prevEnemy].stats.spe);
 	       				var ourBoosts=this.prevState.sides[this.prevState.me].active[0].boosts;
 	       				var enBoosts=this.prevState.sides[1-this.prevState.me].active[0].boosts;
 				    		let boostTable = [1, 1.5, 2, 2.5, 3, 3.5, 4];
@@ -233,8 +223,8 @@ class BowlAgent{
 	       			}
 	       			
 	       		}
-	       		else if(lastMove=="snens"){
-	       			throw new Error("Something went badly snens!");
+	       		else if(lastMove=="error"){
+	       			throw new Error("Something went badly error!");
 	       		}
 	       	}
        	}
@@ -255,7 +245,7 @@ class BowlAgent{
 
             return aeval - beval;
             */
-            var myp = a.sides[a.me].active[0].hp / a.sides[a.me].active[0].maxhp;
+          var myp = a.sides[a.me].active[0].hp / a.sides[a.me].active[0].maxhp;
 	        var thp = a.sides[1 - a.me].active[0].hp / a.sides[1 - a.me].active[0].maxhp;
 	        var mygotStatus=0;      
 	        if(a.sides[a.me].active[0].status=='brn'){
@@ -309,66 +299,66 @@ class BowlAgent{
 	        }
 	        
 
-	        var aeval = (myp+(thgotStatus/6))-(3*thp+(mygotStatus/3))-0.3*a.turn;
+	        var aeval = (myp+(thgotStatus/9))-(3*thp+(mygotStatus/9))-0.3*a.turn;
 
 	        var mypb = b.sides[b.me].active[0].hp / b.sides[b.me].active[0].maxhp;
 	        var thpb = b.sides[1 - b.me].active[0].hp / b.sides[1 - b.me].active[0].maxhp;
 	        var mygotStatusb=0;      
 	        if(b.sides[b.me].active[0].status=='brn'){
 	        	if(b.sides[b.me].active[0].stats.atk>=b.sides[b.me].active[0].stats.spa){
-	        		mygotStatus=2.5;
+	        		mygotStatusb=2.5;
 	        	}
 	        	else{
-	        		mygotStatus=0.5;
+	        		mygotStatusb=0.5;
 	        	}
 	        }
 	        if(b.sides[b.me].active[0].status=='tox'){
-	        	mygotStatus=2;
+	        	mygotStatusb=2;
 	        }
 	        if(b.sides[b.me].active[0].status=='psn'){
-	        	mygotStatus=1;
+	        	mygotStatusb=1;
 	        }
 	        if(b.sides[b.me].active[0].status=='slp'){
-	        	mygotStatus=3;
+	        	mygotStatusb=3;
 	        }
 	        if(b.sides[b.me].active[0].status=='frz'){
-	        	mygotStatus=3;
+	        	mygotStatusb=3;
 	        }
 	        if(b.sides[b.me].active[0].status=='par'){
-	        	mygotStatus=2;
+	        	mygotStatusb=2;
 	        }
 	        
 	        var thgotStatusb=0;
 	       
 	        if(b.sides[1-b.me].active[0].status=='brn'){
 	        	if(b.sides[1-b.me].active[0].stats.atk>=b.sides[1-b.me].active[0].stats.spa){
-	        		thgotStatus=2.5;
+	        		thgotStatusb=2.5;
 	        	}
 	        	else{
-	        		thgotStatus=0.5;
+	        		thgotStatusb=0.5;
 	        	}
 	        }
 	        if(b.sides[1-b.me].active[0].status=='tox'){
-	        		thgotStatus=2;
+	        		thgotStatusb=2;
 	        }
 	        if(b.sides[1-b.me].active[0].status=='psn'){
-	       		thgotStatus=1;
+	       		thgotStatusb=1;
 	        }
 	        if(b.sides[1-b.me].active[0].status=='slp'){
-	        	thgotStatus=3;
+	        	thgotStatusb=3;
 	        }
 	       	if(b.sides[1-b.me].active[0].status=='frz'){
-	        	thgotStatus=3;
+	        	thgotStatusb=3;
 	        }
 	        if(b.sides[1-b.me].active[0].status=='par'){
-	       		thgotStatus=2;
+	       		thgotStatusb=2;
 	        }
 	        
 
-	        var beval = (mypb+(thgotStatusb/6))-(3*thpb+(mygotStatusb/3))-0.3*b.turn;
+	        var beval = (mypb+(thgotStatusb/9))-(3*thpb+(mygotStatusb/9))-0.3*b.turn;
             
-            return aeval-beval;
-            }
+          return aeval-beval;
+          }
         );
         
         for (var choice in options) {
@@ -477,38 +467,15 @@ class BowlAgent{
     }
     digest(line) {
     	line=line.split("|");
-    	//console.log("line "+line);
+    	console.log("line "+line);
     	this.prevTurn.push(line);
     	//console.log("thing "+this.prevTurn[0])
     }
 
     getTeam(format) {
-    	//throw new Error("Something went kek badly snens!");
+    	
     }
-    /*
-    updatePokemon(pname, plevel, pgender, side, hp, atk, def, spA, spD, spe, item, ability){
-    	var nSet = {
-            species: pname,
-            name: pname,
-            level: plevel,
-            gender: pgender,
-            evs: { hp: 85, atk: 85, def: 85, spa: 85, spd: 85, spe: 85 },
-            ivs: { hp: 31, atk: 31, def: 31, spa: 31, spd: 31, spe: 31 },
-            nature: "Hardy",
-            moves:[]
-        };
-        var basePokemon = new Pokemon(nSet, side);
-        basePokemon.stats.hp=hp;
-        basePokemon.stats.atk=atk;
-        basePokemon.stats.def=def;
-        basePokemon.stats.spa=spA;
-        basePokemon.stats.spd=spD;
-        basePokemon.stats.spe=spe;
-        basePokemon.ability=ability;
-        basePokemon.abilityData={id: basePokemon.ability};
-        return basePokemon;
-    }
-    */
+   
 }
 
 exports.Agent=BowlAgent;

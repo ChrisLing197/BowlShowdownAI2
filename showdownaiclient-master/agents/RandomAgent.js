@@ -56,6 +56,7 @@ class RandomAgent {
             basePokemon.ability = basePokemon.baseAbility;
             basePokemon.abilityData = { id: basePokemon.ability };
         }
+        basePokemon.trapped=false;
         return basePokemon;
     }
 
