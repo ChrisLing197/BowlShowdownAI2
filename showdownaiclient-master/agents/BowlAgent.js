@@ -101,6 +101,7 @@ class BowlAgent{
         var worststate = null;
         for (var choice in oppChoices) {
             var cstate = nstate.copy();
+            //console.log(choice);
             cstate.choose('p' + (player + 1), playerChoice);
             cstate.choose('p' + (1 - player + 1), choice);
             if (worststate == null || this.evaluateState(cstate,  player) < this.evaluateState(worststate, player)) {
@@ -160,10 +161,13 @@ class BowlAgent{
             else if(this.prevTurn[i][1]=="-ability"){
               var ability=this.prevTurn[i][3];
               ability=Tools.getAbility(ability);
-              this.enemyTeam[this.prevEnemy].baseAbility = toId(ability);
-              this.enemyTeam[this.prevEnemy].ability = this.enemyTeam[this.prevEnemy].baseAbility;
-              this.enemyTeam[this.prevEnemy].abilityData = { id: this.enemyTeam[this.prevEnemy].ability };
-
+              if(this.enemyTeam[this.currentEnemy].baseAbility!=toId(ability)){
+                console.log(this.enemyTeam[this.currentEnemy].species);
+                console.log(ability);
+                this.enemyTeam[this.currentEnemy].baseAbility = toId(ability);
+                this.enemyTeam[this.currentEnemy].ability = this.enemyTeam[this.currentEnemy].baseAbility;
+                this.enemyTeam[this.currentEnemy].abilityData = { id: this.enemyTeam[this.currentEnemy].ability };
+              }
             }
        		}
        	}
@@ -211,7 +215,7 @@ class BowlAgent{
        
        	
        	
-       	
+       	var changeMoves=false;
        	       	
       // 	console.log("first is "+first);
        	if(this.prevState){
@@ -225,19 +229,12 @@ class BowlAgent{
 	       	//	console.log("the prevChoice is "+this.prevChoice+" and opponent's was "+lastMove);
 
 	       		if(lastMove!="switch"){
+              
 	       			if(Tools.getMove(lastMove).priority==Tools.getMove(toId(this.prevChoice.id)).priority){
 	       			//	console.log("test of move "+Tools.getMove(toId(this.prevChoice)).name);
 	       			//	console.log("prev speed of ours is "+this.prevState.sides[this.prevState.me].active[0].stats.spe);
 	       			//	console.log("prev speed of enemy is "+this.enemyTeam[this.prevEnemy].stats.spe);
-                lastMove=Tools.getMove(lastMove);
-                if(!this.enemyMoves[this.currentEnemy].includes[toId(lastMove)]&&this.enemyMoves[this.currentEnemy].includes(toId(lastMove))){
-                  this.enemyMoves[this.currentEnemy].push(toId(lastMove));
-                  if(this.enemyMoves[this.currentEnemy].length==4){
-                    console.log("Established moves");
-                    console.log(this.enemyMoves[this.currentEnemy]);
-                    this.enemyTeam[this.currentEnemy].moves=this.enemyMoves[this.currentEnemy];
-                  }
-                }
+                
 
 
 
@@ -255,10 +252,21 @@ class BowlAgent{
 	       				}
 
 	       			}
-	       			if(lastMove!="cant"&&lastMove!="slp"){
-	       				lastMove=Tools.getMove(lastMove);
 
-	       			}
+              lastMove=Tools.getMove(lastMove);
+              //console.log(this.enemyTeam[this.prevEnemy].species);
+              //console.log(lastMove.name+" "+!this.enemyMoves[this.prevEnemy].includes(toId(lastMove))+" "+this.enemyTeam[this.prevEnemy].moves.includes(toId(lastMove)));
+              if(!this.enemyMoves[this.prevEnemy].includes(toId(lastMove))&&this.enemyTeam[this.prevEnemy].moves.includes(toId(lastMove))){
+                this.enemyMoves[this.prevEnemy].push(toId(lastMove));
+                  
+                if(this.enemyMoves[this.prevEnemy].length==4){
+                  console.log("Established moves");
+                  console.log(this.enemyMoves[this.prevEnemy]);
+                  this.enemyTeam[this.prevEnemy].moves=this.enemyMoves[this.prevEnemy];
+                  changeMoves=true;
+                }
+              }
+
 	       			
 	       		}
 	       		else if(lastMove=="error"){
@@ -266,10 +274,29 @@ class BowlAgent{
 	       		}
 	       	}
        	}
+        if(changeMoves){
 
+          var oppChoices = this.getOptions(nstate, 1 - nstate.me);
+
+          console.log(this.enemyTeam[this.currentEnemy].species +" "+ nstate.sides[1-nstate.me].active[0].species);
+          /*
+          for (var choice in oppChoices) {
+            console.log(choice);
+          }
+          */
+          console.log(this.enemyTeam[this.currentEnemy].moves+"\n");
+          console.log(nstate.sides[1-nstate.me].active[0].moves);
+        }
+        
        	nstate.sides[1-nstate.me].active[0]=this.enemyTeam[this.currentEnemy];
-
-
+        if(changeMoves){
+          var oppChoices = this.getOptions(nstate, 1 - nstate.me);
+          /*for (var choice in oppChoices) {
+            console.log(choice);
+          }*/
+          console.log(nstate.sides[1-nstate.me].active[0].moves);
+        }
+        
 
        	var pQueue = new PriorityQueue(function (a, b) {
        		/*
@@ -419,7 +446,7 @@ class BowlAgent{
             var badstate = this.getWorstOutcome(cstate, choice, nstate.me);
              // console.log(badstate.baseMove);
             if (badstate.isTerminal) {
-                console.log("a");
+           //     console.log("a");
             	  this.prevEnemy=this.currentEnemy;
       			    this.prevChoice=badstate.baseMove;
     			      this.prevState=nstate;
@@ -432,10 +459,10 @@ class BowlAgent{
         }
 
         
-        while ((new Date()).getTime() - n <= 2000) {
+        while ((new Date()).getTime() - n <= 500) {
             if (pQueue.isEmpty()) {
                 // console.log('FAILURE!');
-                console.log("b");
+              //  console.log("b");
                 this.prevEnemy=this.currentEnemy;
       		    	this.prevChoice=this.fetch_random_key(options);
     		      	this.prevState=nstate;
@@ -449,7 +476,7 @@ class BowlAgent{
                 var dstate = this.getWorstOutcome(cState, choice, cState.me);
                 //dstate.baseMove=;
                 if (dstate && dstate.isTerminal) {
-                     console.log("c");
+              //       console.log("c");
                    	this.prevEnemy=this.currentEnemy;
       		      		this.prevChoice=dstate.baseMove;
     		        		this.prevState=nstate;
@@ -465,17 +492,17 @@ class BowlAgent{
         }
         // console.log('oops I timed out!');
         if (!pQueue.isEmpty()) {
-           console.log("d");
+           //console.log("d");
         	this.prevEnemy=this.currentEnemy;
          // var thing=pQueue.deq().baseMove;
       		this.prevChoice=pQueue.deq().baseMove;
     		  this.prevState=nstate;
       		this.prevTurn=[];
           //1console.log(pQueue.deq());
-          console.log(pQueue.isEmpty());
+          //console.log(pQueue.isEmpty());
             return this.prevChoice;
         }
-        console.log("e");
+        //console.log("e");
        	var choice = this.fetch_random_key(options);
        	//console.log("the choice is "+choice);
       	this.prevEnemy=this.currentEnemy;
