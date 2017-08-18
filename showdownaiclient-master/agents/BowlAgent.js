@@ -161,7 +161,7 @@ class BowlAgent{
               var ability=this.prevTurn[i][3];
               ability=Tools.getAbility(ability);
               this.enemyTeam[this.prevEnemy].baseAbility = toId(ability);
-              this.enemyTeam[this.prevEnemy].ability = basePokemon.baseAbility;
+              this.enemyTeam[this.prevEnemy].ability = this.enemyTeam[this.prevEnemy].baseAbility;
               this.enemyTeam[this.prevEnemy].abilityData = { id: this.enemyTeam[this.prevEnemy].ability };
 
             }
@@ -432,7 +432,7 @@ class BowlAgent{
         }
 
         
-        while ((new Date()).getTime() - n <= 19000) {
+        while ((new Date()).getTime() - n <= 2000) {
             if (pQueue.isEmpty()) {
                 // console.log('FAILURE!');
                 console.log("b");
@@ -518,7 +518,7 @@ class BowlAgent{
     }
     digest(line) {
     	line=line.split("|");
-    	console.log("line "+line);
+    	//console.log("line "+line);
     	this.prevTurn.push(line);
     	//console.log("thing "+this.prevTurn[0])
     }
