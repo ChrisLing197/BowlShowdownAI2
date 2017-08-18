@@ -58,9 +58,9 @@ class BowlAgent{
         if(state.sides[player].active[0].status=='slp'){
         	mygotStatus=3;
         }
-        if(state.sides[player].active[0].status=='frz'){
-        	mygotStatus=3;
-        }
+        //if(state.sides[player].active[0].status=='frz'){
+        //	mygotStatus=3;
+        //}
         if(state.sides[player].active[0].status=='par'){
         	mygotStatus=2;
         }
@@ -84,9 +84,9 @@ class BowlAgent{
         if(state.sides[1-player].active[0].status=='slp'){
         	thgotStatus=3;
         }
-       	if(state.sides[1-player].active[0].status=='frz'){
-        	thgotStatus=3;
-        }
+       	//if(state.sides[1-player].active[0].status=='frz'){
+        //	thgotStatus=3;
+        //}
         if(state.sides[1-player].active[0].status=='par'){
        		thgotStatus=2;
         }
@@ -129,27 +129,50 @@ class BowlAgent{
        	return 0;
     }
 
+    /*changeStringFormat(move){
+      move=move.toLowerCase();
+      move=move.split(" ");
+      var temp="";
+      for(var i=0;i<move.length;i++){
+        temp+=move[i];
+      }
+      return temp;
+    }*/
+
     getLastOpponentMove(){
+      var val ="error";
     	for(var i=0;i<this.prevTurn.length;i++){
        		//console.log("thing "+this.prevTurn[i][2]);
-       		if(this.prevTurn[i][2]){
-       			if(!this.prevTurn[i][2].startsWith(this.mySide)&&this.prevTurn[i][2].startsWith("p")){
-       				if(this.prevTurn[i][1]=="switch"){
-       					return "switch";
-       				}
-       				else if(this.prevTurn[i][1]=="move"){
-       					return this.prevTurn[i][3];
-       				}
-       				else if(this.prevTurn[i][1]=="cant"){
-       					return "cant";
-       				}
+       	if(this.prevTurn[i][2]){
+       		if(!this.prevTurn[i][2].startsWith(this.mySide)&&this.prevTurn[i][2].startsWith("p")){
+       			if(this.prevTurn[i][1]=="switch"){
+       				val="switch";
+              //return "switch";
        			}
+       			else if(this.prevTurn[i][1]=="move"){
+       				val=this.prevTurn[i][3];
+              //return this.prevTurn[i][3];
+       			}
+       			else if(this.prevTurn[i][1]=="cant"){
+       				val="cant";
+              //return "cant";
+       			}
+            else if(this.prevTurn[i][1]=="-ability"){
+              var ability=this.prevTurn[i][3];
+              ability=Tools.getAbility(ability);
+              this.enemyTeam[this.prevEnemy].baseAbility = toId(ability);
+              this.enemyTeam[this.prevEnemy].ability = basePokemon.baseAbility;
+              this.enemyTeam[this.prevEnemy].abilityData = { id: this.enemyTeam[this.prevEnemy].ability };
+
+            }
        		}
        	}
-       	return "error";
+       }
+       return val;
     }
 
     
+
     decide(gameState, options, mySide) {
        	var d = new Date();
         var n = d.getTime();
@@ -192,20 +215,22 @@ class BowlAgent{
        	       	
       // 	console.log("first is "+first);
        	if(this.prevState){
-	       	if(first!=0){
+	       	
+          if(first!=0){
 	       	//	console.log("turn is "+this.prevTurn[0][2]);
 	       		var lastMove=this.getLastOpponentMove();
 	       	//	console.log(Tools.getMove(lastMove).priority);
 	       		
 
 	       	//	console.log("the prevChoice is "+this.prevChoice+" and opponent's was "+lastMove);
+
 	       		if(lastMove!="switch"){
 	       			if(Tools.getMove(lastMove).priority==Tools.getMove(toId(this.prevChoice.id)).priority){
 	       			//	console.log("test of move "+Tools.getMove(toId(this.prevChoice)).name);
 	       			//	console.log("prev speed of ours is "+this.prevState.sides[this.prevState.me].active[0].stats.spe);
 	       			//	console.log("prev speed of enemy is "+this.enemyTeam[this.prevEnemy].stats.spe);
                 lastMove=Tools.getMove(lastMove);
-                if(!this.enemyMoves[this.currentEnemy].includes[toId(lastMove)]&&this.enemyTeam[this.currentEnemy].includes(toId(lastMove))){
+                if(!this.enemyMoves[this.currentEnemy].includes[toId(lastMove)]&&this.enemyMoves[this.currentEnemy].includes(toId(lastMove))){
                   this.enemyMoves[this.currentEnemy].push(toId(lastMove));
                   if(this.enemyMoves[this.currentEnemy].length==4){
                     console.log("Established moves");
@@ -263,8 +288,8 @@ class BowlAgent{
 	        var mygotStatus=0;      
 	        if(a.sides[a.me].active[0].status=='brn'){
 	        	if(a.sides[a.me].active[0].stats.atk>=a.sides[a.me].active[0].stats.spa)
-				//Should be based on whether the pokemon will deal less damage while burned, not the atk v. spa
-				{
+				    //Should be based on whether the pokemon will deal less damage while burned, not the atk v. spa
+				    {
 	        		mygotStatus=2.5;
 	        	}
 	        	else{
@@ -273,27 +298,27 @@ class BowlAgent{
 	        }
 	        if(a.sides[a.me].active[0].status=='tox')
 			//Excludes when getting toxiced is good, like all the toxic orb pokemon
-			{
+			    {
 	        	mygotStatus=2;
 	        }
 	        if(a.sides[a.me].active[0].status=='psn')
 			//Excludes when getting poisoned is good, like how it's usually better for toxic orb pokemon
-			{
+			    {
 	        	mygotStatus=1;
 	        }
 	        if(a.sides[a.me].active[0].status=='slp')
 			//If the pokemon has Sleep Talk, it should be more okay with this
-			{
+			    {
 	        	mygotStatus=3;
 	        }
-	        if(a.sides[a.me].active[0].status=='frz')
+	        //if(a.sides[a.me].active[0].status=='frz')
 			//Are we sure we should even be checking for this?
-			{
-	        	mygotStatus=3;
-	        }
+			    //{
+	       // 	mygotStatus=3;
+	        //}
 	        if(a.sides[a.me].active[0].status=='par')
-			//The amount this is bad is proportional to the pokemon's speed relative to the speeds of opposing pokemon
-			{
+			     //The amount this is bad is proportional to the pokemon's speed relative to the speeds of opposing pokemon
+			    {
 	        	mygotStatus=2;
 	        }
 	        
@@ -316,9 +341,9 @@ class BowlAgent{
 	        if(a.sides[1-a.me].active[0].status=='slp'){
 	        	thgotStatus=3;
 	        }
-	       	if(a.sides[1-a.me].active[0].status=='frz'){
-	        	thgotStatus=3;
-	        }
+	       	//if(a.sides[1-a.me].active[0].status=='frz'){
+	        //	thgotStatus=3;
+	        //}
 	        if(a.sides[1-a.me].active[0].status=='par'){
 	       		thgotStatus=2;
 	        }
@@ -346,9 +371,9 @@ class BowlAgent{
 	        if(b.sides[b.me].active[0].status=='slp'){
 	        	mygotStatusb=3;
 	        }
-	        if(b.sides[b.me].active[0].status=='frz'){
-	        	mygotStatusb=3;
-	        }
+	        //if(b.sides[b.me].active[0].status=='frz'){
+	        //	mygotStatusb=3;
+	        //}
 	        if(b.sides[b.me].active[0].status=='par'){
 	        	mygotStatusb=2;
 	        }
@@ -481,11 +506,11 @@ class BowlAgent{
         // If the species only has one ability, then the pokemon's ability can only have the one ability.
         // Barring zoroark, skill swap, and role play nonsense.
         // This will be pretty much how we digest abilities as well
-        if (Object.keys(basePokemon.template.abilities).length == 1) {
+        //if (Object.keys(basePokemon.template.abilities).length == 1) {
             basePokemon.baseAbility = toId(basePokemon.template.abilities['0']);
             basePokemon.ability = basePokemon.baseAbility;
             basePokemon.abilityData = { id: basePokemon.ability };
-        }
+       // }
         basePokemon.trapped=false;
         this.enemyTeam.push(basePokemon);
         this.enemyMoves.push([]);
@@ -493,7 +518,7 @@ class BowlAgent{
     }
     digest(line) {
     	line=line.split("|");
-    	//console.log("line "+line);
+    	console.log("line "+line);
     	this.prevTurn.push(line);
     	//console.log("thing "+this.prevTurn[0])
     }
