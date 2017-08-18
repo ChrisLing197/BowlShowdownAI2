@@ -262,26 +262,38 @@ class BowlAgent{
 	        var thp = a.sides[1 - a.me].active[0].hp / a.sides[1 - a.me].active[0].maxhp;
 	        var mygotStatus=0;      
 	        if(a.sides[a.me].active[0].status=='brn'){
-	        	if(a.sides[a.me].active[0].stats.atk>=a.sides[a.me].active[0].stats.spa){
+	        	if(a.sides[a.me].active[0].stats.atk>=a.sides[a.me].active[0].stats.spa)
+				//Should be based on whether the pokemon will deal less damage while burned, not the atk v. spa
+				{
 	        		mygotStatus=2.5;
 	        	}
 	        	else{
 	        		mygotStatus=0.5;
 	        	}
 	        }
-	        if(a.sides[a.me].active[0].status=='tox'){
+	        if(a.sides[a.me].active[0].status=='tox')
+			//Excludes when getting toxiced is good, like all the toxic orb pokemon
+			{
 	        	mygotStatus=2;
 	        }
-	        if(a.sides[a.me].active[0].status=='psn'){
+	        if(a.sides[a.me].active[0].status=='psn')
+			//Excludes when getting poisoned is good, like how it's usually better for toxic orb pokemon
+			{
 	        	mygotStatus=1;
 	        }
-	        if(a.sides[a.me].active[0].status=='slp'){
+	        if(a.sides[a.me].active[0].status=='slp')
+			//If the pokemon has Sleep Talk, it should be more okay with this
+			{
 	        	mygotStatus=3;
 	        }
-	        if(a.sides[a.me].active[0].status=='frz'){
+	        if(a.sides[a.me].active[0].status=='frz')
+			//Are we sure we should even be checking for this?
+			{
 	        	mygotStatus=3;
 	        }
-	        if(a.sides[a.me].active[0].status=='par'){
+	        if(a.sides[a.me].active[0].status=='par')
+			//The amount this is bad is proportional to the pokemon's speed relative to the speeds of opposing pokemon
+			{
 	        	mygotStatus=2;
 	        }
 	        
