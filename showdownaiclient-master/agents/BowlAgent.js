@@ -8,6 +8,7 @@ class BowlAgent{
 	constructor(){
 		this.name="Bowl";
 		this.enemyTeam=[];
+    this.enemyMoves=[];
 		this.currentEnemy=-1;
 		this.prevEnemy=-1;
 		this.prevChoice=null;
@@ -203,6 +204,18 @@ class BowlAgent{
 	       			//	console.log("test of move "+Tools.getMove(toId(this.prevChoice)).name);
 	       			//	console.log("prev speed of ours is "+this.prevState.sides[this.prevState.me].active[0].stats.spe);
 	       			//	console.log("prev speed of enemy is "+this.enemyTeam[this.prevEnemy].stats.spe);
+                lastMove=Tools.getMove(lastMove);
+                if(!this.enemyMoves[this.currentEnemy].includes[toId(lastMove)]&&this.enemyTeam[this.currentEnemy].includes(toId(lastMove))){
+                  this.enemyMoves[this.currentEnemy].push(toId(lastMove));
+                  if(this.enemyMoves[this.currentEnemy].length==4){
+                    console.log("Established moves");
+                    console.log(this.enemyMoves[this.currentEnemy]);
+                    this.enemyTeam[this.currentEnemy].moves=this.enemyMoves[this.currentEnemy];
+                  }
+                }
+
+
+
 	       				var ourBoosts=this.prevState.sides[this.prevState.me].active[0].boosts;
 	       				var enBoosts=this.prevState.sides[1-this.prevState.me].active[0].boosts;
 				    		let boostTable = [1, 1.5, 2, 2.5, 3, 3.5, 4];
@@ -425,7 +438,7 @@ class BowlAgent{
           console.log(pQueue.isEmpty());
             return this.prevChoice;
         }
-         console.log("e");
+        console.log("e");
        	var choice = this.fetch_random_key(options);
        	//console.log("the choice is "+choice);
       	this.prevEnemy=this.currentEnemy;
@@ -462,12 +475,13 @@ class BowlAgent{
             basePokemon.abilityData = { id: basePokemon.ability };
         }
         basePokemon.trapped=false;
-        this.enemyTeam.push(basePokemon)
+        this.enemyTeam.push(basePokemon);
+        this.enemyMoves.push([]);
         return basePokemon;
     }
     digest(line) {
     	line=line.split("|");
-    	console.log("line "+line);
+    	//console.log("line "+line);
     	this.prevTurn.push(line);
     	//console.log("thing "+this.prevTurn[0])
     }
