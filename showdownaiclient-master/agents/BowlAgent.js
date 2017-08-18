@@ -363,7 +363,17 @@ class BowlAgent{
 	       // 	mygotStatus=3;
 	        //}
 	        if(a.sides[a.me].active[0].status=='par')
-			     //The amount this is bad is proportional to the pokemon's speed relative to the speeds of opposing pokemon
+			     /*The amount this is bad is proportional to the pokemon's speed relative to the speeds of opposing pokemon:
+						-Assume unknown enemy pokemon have a speed stat of 170
+						-healthyspd=(this pokemon's speed without being paralyzed, including things like choice scarf)
+						-hnum_slower=0
+						-for each enemy pokemon, if( healthyspd > (enemy pokemon's speed) ) {hnum_slower++;}
+						-pnum_slower=0
+						-for each enemy pokemon, if( healthyspd/2 > (enemy pokemon's speed) ) {pnum_slower++;}
+						-paraimpact=hnum_slower-pnum_slower;
+						-(possibly put bounds on paraimpact, a minimum for the 30% immobile, and a maximum for proportional reasons)
+			Finally:	-mygotStatus=paraimpact
+				*/
 			    {
 	        	mygotStatus=2;
 	        }
