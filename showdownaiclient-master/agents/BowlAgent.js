@@ -453,9 +453,9 @@ class BowlAgent{
 	        if(b.sides[1-b.me].active[0].status=='slp'){
 	        	thgotStatusb=3;
 	        }
-	       	if(b.sides[1-b.me].active[0].status=='frz'){
-	        	thgotStatusb=3;
-	        }
+	       //	if(b.sides[1-b.me].active[0].status=='frz'){
+	       // 	thgotStatusb=3;
+	       // }
 	        if(b.sides[1-b.me].active[0].status=='par'){
 	       		thgotStatusb=2;
 	        }
