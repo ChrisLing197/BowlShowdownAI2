@@ -280,7 +280,7 @@ exports.BattleStatuses = {
 	},
 	choicelock: {
 		onStart: function (pokemon) {
-			if (!this.activeMove.id || this.activeMove.sourceEffect && this.activeMove.sourceEffect !== this.activeMove.id) return false;
+			if (!this.activeMove || !this.activeMove.id || this.activeMove.sourceEffect && this.activeMove.sourceEffect !== this.activeMove.id) return false;
 			this.effectData.move = this.activeMove.id;
 		},
 		onDisableMove: function (pokemon) {
