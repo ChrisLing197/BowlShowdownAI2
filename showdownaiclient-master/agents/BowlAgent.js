@@ -586,9 +586,9 @@ class BowlAgent{
 	        if(b.sides[1-b.me].active[0].status=='slp'){
 	        	thgotStatusb=3;
 	        }
-	       	if(b.sides[1-b.me].active[0].status=='frz'){
-	        	thgotStatusb=3;
-	        }
+	       //	if(b.sides[1-b.me].active[0].status=='frz'){
+	       // 	thgotStatusb=3;
+	       // }
 	        if(b.sides[1-b.me].active[0].status=='par'){
 	       		if(b.sides[b.me].active[0].getStat(spe,false,false)>b.sides[1-player].active[0].getStat(spe,false,false)*4 && b.sides[b.me].active[0].getStat(spe,false,false)<b.sides[1-player].active[0].getStat(spe,false,false)
 							{
