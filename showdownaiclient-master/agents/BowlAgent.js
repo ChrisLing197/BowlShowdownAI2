@@ -58,7 +58,12 @@ class BowlAgent{
     }
     */
     if(state.sides[player].active[0].status=='slp'){
+		if (state.sides[player].active[0].moves.includes(toId(Tools.getMove('sleeptalk')))){
+			mygotStatus=0.75;
+		}
+		else{
       mygotStatus=3;
+		}
     }
     //if(state.sides[player].active[0].status=='frz'){
     //  mygotStatus=3;
@@ -126,7 +131,12 @@ class BowlAgent{
     }
     */
     if(state.sides[1-player].active[0].status=='slp'){
-      thgotStatus=3;
+      if (state.sides[1-player].active[0].moves.includes(toId(Tools.getMove('sleeptalk')))){
+		  thgotStatus=0.75;
+	  }
+	  else{
+		  thgotStatus=9;
+	  }
     }
     //if(state.sides[1-player].active[0].status=='frz'){
     //  thgotStatus=3;
@@ -417,10 +427,13 @@ class BowlAgent{
       }
       */
       if(a.sides[a.me].active[0].status=='slp')
-        //If the pokemon has Sleep Talk, it should be more okay with this
-      {
-        mygotStatus=3;
-      }
+		  if (a.sides[a.me].active[0].moves.includes(toId(Tools.getMove('sleeptalk')))){
+			  mygotStatus=0.75;
+		  }
+  
+		  else{
+			mygotStatus=3;
+		  }
       //if(a.sides[a.me].active[0].status=='frz')
       //Are we sure we should even be checking for this?
       //{
@@ -489,7 +502,12 @@ class BowlAgent{
       }
       */
       if(a.sides[1-a.me].active[0].status=='slp'){
-        thgotStatus=3;
+        if (a.sides[1-a.me].active[0].moves.includes(toId(Tools.getMove('sleeptalk')))){
+			thgotStatus=0.75;
+		}
+		else {
+			thgotStatus=9;
+		}
       }
       //if(a.sides[1-a.me].active[0].status=='frz'){
       //  thgotStatus=3;
@@ -527,7 +545,13 @@ class BowlAgent{
       }
       */
       if(b.sides[b.me].active[0].status=='slp'){
-        mygotStatusb=3;
+        if (b.sides[b.me].active[0].moves.includes(toId(Tools.getMove('sleeptalk')))){
+			mygotStatusb=0.75;
+		}
+		
+		else{
+			mygotStatusb=3;
+		}
       }
       //if(b.sides[b.me].active[0].status=='frz'){
       //  mygotStatusb=3;
@@ -594,7 +618,13 @@ class BowlAgent{
       }
       */
       if(b.sides[1-b.me].active[0].status=='slp'){
-        thgotStatusb=3;
+        if (b.sides[1-b.me].active[0].moves.includes(toId(Tools.getMove('sleeptalk')))){
+			thgotStatusb=0.75;
+		}
+		
+		else{
+			thgotStatusb=9;
+		}
       }
       //  if(b.sides[1-b.me].active[0].status=='frz'){
       //  thgotStatusb=3;
