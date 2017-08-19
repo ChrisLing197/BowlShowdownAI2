@@ -14,6 +14,7 @@ class BowlAgent{
 		this.prevChoice=null;
 		this.prevState=null;
 		this.prevTurn=[];
+		this.enemiesFainted=0;
 	}
 
 	fetch_random_key(obj) {
@@ -62,7 +63,48 @@ class BowlAgent{
         //	mygotStatus=3;
         //}
         if(state.sides[player].active[0].status=='par'){
-        	mygotStatus=2;
+        	The amount this is bad is proportional to the pokemon's speed relative to the speeds of opposing pokemon:
+						//-Assume unknown enemy pokemon have a speed stat of 170
+							var enemyspds=[this.enemyTeam[0]];
+							for (var i=1; i<this.enemyTeam.length; i++){
+								enemyspds.push(this.enemyTeam[i].getStat(spe,false,false));
+							}
+							for (var i=0; i<6-(this.enemyTeam.length+this.enemiesFainted); i++){
+								enemyspds.push(170);
+							}
+						//-healthyspd=(this pokemon's speed without being paralyzed, including things like choice scarf)
+							healthyspd=a.sides[a.me].active[0].getStat(spe,false,false)*4;
+							hnumFaster=0;
+						//-for each enemy pokemon, if( healthyspd > (enemy pokemon's speed) ) {hnum_slower++;}
+							for (var i=0; i<enemyspds.length; i++){
+								if (healthyspd > enemyspds[i]){
+									hnumFaster++;
+								}
+							}
+							pnumFaster=0;
+						//-for each enemy pokemon, if( healthyspd/4 > (enemy pokemon's speed) ) {pnum_slower++;}
+							for (var i=0; i<enemyspds.length; i++){
+								if (healthyspd/4 >= enemyspds[i]){
+									pnumFaster++;
+								}
+							}
+							paraimpact=hnumFaster-pnumFaster;
+							if (paraimpact==0){
+								mygotStatus=0.75;
+							}
+							else if(paraimpact==1){
+								mygotStatus=1.5;
+							}
+							else if(paraimpact==2){
+								mygotStatus=2;
+							}
+							else if(paraimpact==3){
+								mygotStatus=2.5;
+							}
+							else{
+								mygotStatus=3;
+							}
+							
         }
         
         var thgotStatus=0;
@@ -88,7 +130,16 @@ class BowlAgent{
         //	thgotStatus=3;
         //}
         if(state.sides[1-player].active[0].status=='par'){
-       		thgotStatus=2;
+			//If paralyzing the opponent makes us faster when we would normally be slower
+			if(a.sides[a.me].active[0].getStat(spe,false,false)>state.sides[1-player].active[0].getStat(spe,false,false)*4 && a.sides[a.me].active[0].getStat(spe,false,false)<state.sides[1-player].active[0].getStat(spe,false,false)
+			{
+				thgotStatus=9;
+			}
+			
+			else
+			{
+				thgotStatus=1;
+			}
         }
         
 
@@ -192,6 +243,15 @@ class BowlAgent{
     
 
     decide(gameState, options, mySide) {
+		for (var i=0; i<this.enemyTeam.length; i++){
+			if (this.enemyTeam[i].hp == 0){
+				this.enemyTeam.splice(i,1);
+				if (i<prevEnemy){
+					prevEnemy--;
+				}
+				enemiesFainted++;
+			}
+		}
        	var d = new Date();
         var n = d.getTime();
         // It is important to start by making a deep copy of gameState.  We want to avoid accidentally modifying the gamestate.
@@ -363,20 +423,47 @@ class BowlAgent{
 	       // 	mygotStatus=3;
 	        //}
 	        if(a.sides[a.me].active[0].status=='par')
-			     /*The amount this is bad is proportional to the pokemon's speed relative to the speeds of opposing pokemon:
-						-Assume unknown enemy pokemon have a speed stat of 170
-						-healthyspd=(this pokemon's speed without being paralyzed, including things like choice scarf)
-						-hnum_slower=0
-						-for each enemy pokemon, if( healthyspd > (enemy pokemon's speed) ) {hnum_slower++;}
-						-pnum_slower=0
-						-for each enemy pokemon, if( healthyspd/2 > (enemy pokemon's speed) ) {pnum_slower++;}
-						-paraimpact=hnum_slower-pnum_slower;
-						-(possibly put bounds on paraimpact, a minimum for the 30% immobile, and a maximum for proportional reasons)
-			Finally:	-mygotStatus=paraimpact
-				*/
-			    {
-	        	mygotStatus=2;
-	        }
+			     //The amount this is bad is proportional to the pokemon's speed relative to the speeds of opposing pokemon:
+						//-Assume unknown enemy pokemon have a speed stat of 170
+							var enemyspds=[this.enemyTeam[0]];
+							for (var i=1; i<this.enemyTeam.length; i++){
+								enemyspds.push(this.enemyTeam[i].getStat(spe,false,false));
+							}
+							for (var i=0; i<6-(this.enemyTeam.length+this.enemiesFainted); i++){
+								enemyspds.push(170);
+							}
+						//-healthyspd=(this pokemon's speed without being paralyzed, including things like choice scarf)
+							healthyspd=a.sides[a.me].active[0].getStat(spe,false,false)*4;
+							hnumFaster=0;
+						//-for each enemy pokemon, if( healthyspd > (enemy pokemon's speed) ) {hnum_slower++;}
+							for (var i=0; i<enemyspds.length; i++){
+								if (healthyspd > enemyspds[i]){
+									hnumFaster++;
+								}
+							}
+							pnumFaster=0;
+						//-for each enemy pokemon, if( healthyspd/4 > (enemy pokemon's speed) ) {pnum_slower++;}
+							for (var i=0; i<enemyspds.length; i++){
+								if (healthyspd/4 >= enemyspds[i]){
+									pnumFaster++;
+								}
+							}
+							paraimpact=hnumFaster-pnumFaster;
+							if (paraimpact==0){
+								mygotStatus=0.75;
+							}
+							else if(paraimpact==1){
+								mygotStatus=1.5;
+							}
+							else if(paraimpact==2){
+								mygotStatus=2;
+							}
+							else if(paraimpact==3){
+								mygotStatus=2.5;
+							}
+							else{
+								mygotStatus=3;
+							}
 	        
 	        var thgotStatus=0;
 	       
@@ -401,7 +488,13 @@ class BowlAgent{
 	        //	thgotStatus=3;
 	        //}
 	        if(a.sides[1-a.me].active[0].status=='par'){
-	       		thgotStatus=2;
+	       		if(a.sides[a.me].active[0].getStat(spe,false,false)>a.sides[1-player].active[0].getStat(spe,false,false)*4 && a.sides[a.me].active[0].getStat(spe,false,false)<a.sides[1-player].active[0].getStat(spe,false,false)
+							{
+								thgotStatus=9;
+							}
+							else{
+								thgotStatus=1;
+							}
 	        }
 	        
 
@@ -431,7 +524,47 @@ class BowlAgent{
 	        //	mygotStatusb=3;
 	        //}
 	        if(b.sides[b.me].active[0].status=='par'){
-	        	mygotStatusb=2;
+	        	//The amount this is bad is proportional to the pokemon's speed relative to the speeds of opposing pokemon:
+						//-Assume unknown enemy pokemon have a speed stat of 170
+							var enemyspds=[this.enemyTeam[0]];
+							for (var i=1; i<this.enemyTeam.length; i++){
+								enemyspds.push(this.enemyTeam[i].getStat(spe,false,false));
+							}
+							for (var i=0; i<6-(this.enemyTeam.length+this.enemiesFainted); i++){
+								enemyspds.push(170);
+							}
+						//-healthyspd=(this pokemon's speed without being paralyzed, including things like choice scarf)
+							healthyspd=b.sides[b.me].active[0].getStat(spe,false,false)*4;
+							hnumFaster=0;
+						//-for each enemy pokemon, if( healthyspd > (enemy pokemon's speed) ) {hnum_slower++;}
+							for (var i=0; i<enemyspds.length; i++){
+								if (healthyspd > enemyspds[i]){
+									hnumFaster++;
+								}
+							}
+							pnumFaster=0;
+						//-for each enemy pokemon, if( healthyspd/4 > (enemy pokemon's speed) ) {pnum_slower++;}
+							for (var i=0; i<enemyspds.length; i++){
+								if (healthyspd/4 >= enemyspds[i]){
+									pnumFaster++;
+								}
+							}
+							paraimpact=hnumFaster-pnumFaster;
+							if (paraimpact==0){
+								mygotStatus=0.75;
+							}
+							else if(paraimpact==1){
+								mygotStatus=1.5;
+							}
+							else if(paraimpact==2){
+								mygotStatus=2;
+							}
+							else if(paraimpact==3){
+								mygotStatus=2.5;
+							}
+							else{
+								mygotStatus=3;
+							}
 	        }
 	        
 	        var thgotStatusb=0;
@@ -457,7 +590,13 @@ class BowlAgent{
 	        	thgotStatusb=3;
 	        }
 	        if(b.sides[1-b.me].active[0].status=='par'){
-	       		thgotStatusb=2;
+	       		if(b.sides[b.me].active[0].getStat(spe,false,false)>b.sides[1-player].active[0].getStat(spe,false,false)*4 && b.sides[b.me].active[0].getStat(spe,false,false)<b.sides[1-player].active[0].getStat(spe,false,false)
+							{
+								thgotStatus=9;
+							}
+							else{
+								thgotStatus=1;
+							}
 	        }
 	        
 
