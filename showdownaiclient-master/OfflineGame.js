@@ -36,7 +36,7 @@ class OfflineLayer {
                 p2.team = teamb;
 
                 format = 'competitive';
-                for (var j = 0; j < 0; j++) {
+                for (var j = 0; j < 2; j++) {
                     console.log(j);
                     p1.interface = new InterfaceLayer('test game', p1n, null, agent1);
                     p2.interface = new InterfaceLayer('test game', p2n, null, agent2);
@@ -55,7 +55,7 @@ class OfflineLayer {
                 }
                 p1.team = teamb;
                 p2.team = teama;
-                for (var j = 0; j < 1; j++) {
+                for (var j = 0; j < 3; j++) {
                     console.log(j);
                     p1.interface = new InterfaceLayer('test game', p1n, null, agent1);
                     p2.interface = new InterfaceLayer('test game', p2n, null, agent2);

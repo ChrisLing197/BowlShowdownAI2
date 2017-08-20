@@ -4,42 +4,18 @@ var Pokemon = require('../zarel/battle-engine').BattlePokemon;
 var BattleSide = require('../zarel/battle-engine').BattleSide;
 var PriorityQueue = require('priorityqueuejs');
 
-class BowlAgent{
-  constructor(){
-    this.name="Bowl";
-    this.enemyTeam=[];
-    this.enemyMoves=[];
-    this.currentEnemy=-1;
-    this.prevEnemy=-1;
-    this.prevChoice=null;
-    this.prevState=null;
-    this.prevTurn=[];
-    this.enemiesFainted=0;
-  }
 
-  fetch_random_key(obj) {
-    var temp_key, keys = [];
-    for (temp_key in obj) {
-      if (obj.hasOwnProperty(temp_key)) {
-        keys.push(temp_key);
-      }
-    }
-    return keys[Math.floor(Math.random() * keys.length)];
-  }
-
-  getOptions(state, player) {
-    if (typeof (player) == 'string' && player.startsWith('p')) {
-      player = parseInt(player.substring(1)) - 1;
-    }
-    return Tools.parseRequestData(state.sides[player].getRequestData());
-  }
-
-  evaluateState(state, player){
+function evaluateState(state, player){
 
     var myp = state.sides[player].active[0].hp / state.sides[player].active[0].maxhp;
     var thp = state.sides[1 - player].active[0].hp / state.sides[1 - player].active[0].maxhp;
 
-
+    if(thp==0){
+      return 50-0.6*state.turn;
+    }
+    if(myp==0){
+      return -3.5-0.6*state.turn;
+    }
     var mygotStatus=0;
     /*
     if(state.sides[player].active[0].status=='brn'){
@@ -71,11 +47,11 @@ class BowlAgent{
     if(state.sides[player].active[0].status=='par'){
       //The amount this is bad is proportional to the pokemon's speed relative to the speeds of opposing pokemon:
       //-Assume unknown enemy pokemon have a speed stat of 170
-      var enemyspds=[this.enemyTeam[0].getStat('spe',false,false)];
-      for (var i=1; i<this.enemyTeam.length; i++){
-        enemyspds.push(this.enemyTeam[i].getStat('spe',false,false));
+      var enemyspds=[state.enemyTeam[0].getStat('spe',false,false)];
+      for (var i=1; i<state.enemyTeam.length; i++){
+        enemyspds.push(state.enemyTeam[i].getStat('spe',false,false));
       }
-      for (var i=0; i<6-(this.enemyTeam.length+this.enemiesFainted); i++){
+      for (var i=0; i<6-(state.enemyTeam.length+state.enemiesFainted); i++){
         enemyspds.push(170);
       }
       //-healthyspd=(this pokemon's speed without being paralyzed, including things like choice scarf)
@@ -154,36 +130,97 @@ class BowlAgent{
     }
 
 
-    return (/*myp+*/(thgotStatus/9))-(4*thp+(mygotStatus/9))-4*state.turn;
+    return (myp+(thgotStatus/9)+state.thswitch)-(3*thp+(mygotStatus/9)+state.myswitch)-0.6*state.turn;
+}
+
+
+
+class BowlAgent{
+  constructor(){
+    this.name="Bowl";
+    this.enemyTeam=[];
+    this.enemyMoves=[];
+    this.currentEnemy=-1;
+    this.prevEnemy=-1;
+    this.prevChoice=null;
+    this.prevState=null;
+    this.prevTurn=[];
+    this.enemiesFainted=0;
   }
+
+  fetch_random_key(obj) {
+    var temp_key, keys = [];
+    for (temp_key in obj) {
+      if (obj.hasOwnProperty(temp_key)) {
+        keys.push(temp_key);
+      }
+    }
+    return keys[Math.floor(Math.random() * keys.length)];
+  }
+
+  getOptions(state, player) {
+    if (typeof (player) == 'string' && player.startsWith('p')) {
+      player = parseInt(player.substring(1)) - 1;
+    }
+    return Tools.parseRequestData(state.sides[player].getRequestData());
+  }
+
+  
 
   getWorstOutcome(state, playerChoice, player) {
     var nstate = state.copy();
     var oppChoices = this.getOptions(nstate, 1 - player);
     var worststate = null;
-    /*for (var choice in oppChoices) {
+    var worstChoice=null;
+    
+    for (var choice in oppChoices) {
+      var cstate = nstate.copy();
+      cstate.myswitch=0;
+      //console.log(cstate);
+      if(playerChoice.startsWith('switch')){
+        //console.log("kek");
+        cstate.myswitch=0.7;
+      }
+      //console.log(Tools.getMove(toId(choice.substring(choice.indexOf(' ')))));
+      cstate.thswitch=0;
       if(choice.startsWith('switch')){
-        var cstate = nstate.copy();
+        
         //console.log(choice);
-
+        cstate.thswitch=0.7;
         cstate.choose('p' + (player + 1), playerChoice);
         cstate.choose('p' + (1 - player + 1), choice);
-        if (worststate == null || this.evaluateState(cstate,  player) < this.evaluateState(worststate, player)) {
+        //console.log(choice+" "+evaluateState(cstate,player)+" "+evaluateState(cstate,1-player)+" "+playerChoice);
+        if (worststate == null || evaluateState(cstate,  player) <evaluateState(worststate, player)) {
           worststate = cstate;
+          worstChoice=choice;
+        }
+      }else if(choice.startsWith('move')&&nstate.sides[1-nstate.me].active[0].moves.includes(Tools.getMove(toId(choice.substring(choice.indexOf(' ')))).id)){
+        //console.log(choice);
+        cstate.choose('p' + (player + 1), playerChoice);
+        cstate.choose('p' + (1 - player + 1), choice);
+        //console.log(choice+" "+evaluateState(cstate,player)+" "+evaluateState(cstate,1-player)+" "+playerChoice);
+        if (worststate == null || evaluateState(cstate,  player) <evaluateState(worststate, player)) {
+          worststate = cstate;
+          worstChoice=choice;
         }
       }
-    }*/
-    for(var i=0;i<nstate.sides[1-nstate.me].active[0].moves.length;i++){
+    }
+    
+    /*for(var i=0;i<nstate.sides[1-nstate.me].active[0].moves.length;i++){
       var choice=nstate.sides[1-nstate.me].active[0].moves[i];
       var cstate = nstate.copy();
       //console.log(choice);
 
       cstate.choose('p' + (player + 1), playerChoice);
       cstate.choose('p' + (1 - player + 1), choice);
-      if (worststate == null || this.evaluateState(cstate,  player) < this.evaluateState(worststate, player)) {
+      console.log(choice+" "+evaluateState(cstate,player)+" "+evaluateState(cstate,1-player));
+      if (worststate == null || evaluateState(cstate,  player) < evaluateState(worststate, player)) {
         worststate = cstate;
+        worstChoice=choice;
       }
-    }
+    }*/
+    if(worststate)
+      //console.log("worst choice is "+worstChoice+" "+evaluateState(worststate,player)+" "+playerChoice);
     return worststate;
   }
 
@@ -368,248 +405,12 @@ class BowlAgent{
             var beval = mypb - 3 * thpb - 0.3 * b.turn;
 
             return aeval - beval;
-       */
-      var myp = a.sides[a.me].active[0].hp / a.sides[a.me].active[0].maxhp;
-      var thp = a.sides[1 - a.me].active[0].hp / a.sides[1 - a.me].active[0].maxhp;
-      var mygotStatus=0;
-      /*
-      if(a.sides[a.me].active[0].status=='brn'){
-        if(a.sides[a.me].active[0].stats.atk>=a.sides[a.me].active[0].stats.spa)
-          //Should be based on whether the pokemon will deal less damage while burned, not the atk v. spa
-        {
-          mygotStatus=2.5;
-        }
-        else{
-          mygotStatus=0.5;
-        }
-      }
-      if(a.sides[a.me].active[0].status=='tox')
-        //Excludes when getting toxiced is good, like all the toxic orb pokemon
-      {
-        mygotStatus=2;
-      }
-      if(a.sides[a.me].active[0].status=='psn')
-        //Excludes when getting poisoned is good, like how it's usually better for toxic orb pokemon
-      {
-        mygotStatus=1;
-      }
-       */
-      if(a.sides[a.me].active[0].status=='slp')
-        if (a.sides[a.me].active[0].moves.includes(toId(Tools.getMove('sleeptalk')))){
-          mygotStatus=0.75;
-        }
-
-        else{
-          mygotStatus=3;
-        }
-      //if(a.sides[a.me].active[0].status=='frz')
-      //Are we sure we should even be checking for this?
-      //{
-      //  mygotStatus=3;
-      //}
-      if(a.sides[a.me].active[0].status=='par'){ 
-        var enemyspds=[a.enemyTeam[0].getStat('spe',false,false)];
-        for (var i=1; i<a.enemyTeam.length; i++){
-          enemyspds.push(a.enemyTeam[i].getStat('spe',false,false));
-        }
-        for (var i=0; i<6-(a.enemyTeam.length+a.enemiesFainted); i++){
-          enemyspds.push(170);
-        }
-        //-healthyspd=(this pokemon's speed without being paralyzed, including things like choice scarf)
-        var healthyspd=a.sides[a.me].active[0].getStat('spe',false,false)*4;
-        var hnumFaster=0;
-        //-for each enemy pokemon, if( healthyspd > (enemy pokemon's speed) ) {hnum_slower++;}
-        for (var i=0; i<enemyspds.length; i++){
-          if (healthyspd > enemyspds[i]){
-            hnumFaster++;
-          }
-        }
-        var pnumFaster=0;
-        //-for each enemy pokemon, if( healthyspd/4 > (enemy pokemon's speed) ) {pnum_slower++;}
-        for (var i=0; i<enemyspds.length; i++){
-          if (healthyspd/4 >= enemyspds[i]){
-            pnumFaster++;
-          }
-        }
-        var paraimpact=hnumFaster-pnumFaster;
-        if (paraimpact==0){
-          mygotStatus=0.75;
-        }
-        else if(paraimpact==1){
-          mygotStatus=1.5;
-        }
-        else if(paraimpact==2){
-          mygotStatus=2;
-        }
-        else if(paraimpact==3){
-          mygotStatus=2.5;
-        }
-        else{
-          mygotStatus=3;
-        }
-      }
-      //The amount this is bad is proportional to the pokemon's speed relative to the speeds of opposing pokemon:
-      //-Assume unknown enemy pokemon have a speed stat of 170
-
-
-      var thgotStatus=0;
-      /*
-      if(a.sides[1-a.me].active[0].status=='brn'){
-        if(a.sides[1-a.me].active[0].stats.atk>=a.sides[1-a.me].active[0].stats.spa){
-          thgotStatus=2.5;
-        }
-        else{
-          thgotStatus=0.5;
-        }
-      }
-      if(a.sides[1-a.me].active[0].status=='tox'){
-        thgotStatus=2;
-      }
-      if(a.sides[1-a.me].active[0].status=='psn'){
-        thgotStatus=1;
-      }
-       */
-      if(a.sides[1-a.me].active[0].status=='slp'){
-        if (a.sides[1-a.me].active[0].moves.includes(toId(Tools.getMove('sleeptalk')))){
-          thgotStatus=0.75;
-        }
-        else {
-          thgotStatus=9;
-        }
-      }
-      //if(a.sides[1-a.me].active[0].status=='frz'){
-      //  thgotStatus=3;
-      //}
-      if(a.sides[1-a.me].active[0].status=='par'){
-        if(a.sides[a.me].active[0].getStat('spe',false,false)>a.sides[1-a.me].active[0].getStat('spe',false,false)*4 && a.sides[a.me].active[0].getStat('spe',false,false)<a.sides[1-a.me].active[0].getStat('spe',false,false))
-        {
-          thgotStatus=9;
-        }
-        else{
-          thgotStatus=1;
-        }
-      }
-
-
-      var aeval = (/*myp+*/(thgotStatus/9))-(4*thp+(mygotStatus/9))-4*a.turn;
-
-      var mypb = b.sides[b.me].active[0].hp / b.sides[b.me].active[0].maxhp;
-      var thpb = b.sides[1 - b.me].active[0].hp / b.sides[1 - b.me].active[0].maxhp;
-      var mygotStatusb=0;      
-      /*
-      if(b.sides[b.me].active[0].status=='brn'){
-        if(b.sides[b.me].active[0].stats.atk>=b.sides[b.me].active[0].stats.spa){
-          mygotStatusb=2.5;
-        }
-        else{
-          mygotStatusb=0.5;
-        }
-      }
-      if(b.sides[b.me].active[0].status=='tox'){
-        mygotStatusb=2;
-      }
-      if(b.sides[b.me].active[0].status=='psn'){
-        mygotStatusb=1;
-      }
-       */
-      if(b.sides[b.me].active[0].status=='slp'){
-        if (b.sides[b.me].active[0].moves.includes(toId(Tools.getMove('sleeptalk')))){
-          mygotStatusb=0.75;
-        }
-
-        else{
-          mygotStatusb=3;
-        }
-      }
-      //if(b.sides[b.me].active[0].status=='frz'){
-      //  mygotStatusb=3;
-      //}
-      if(b.sides[b.me].active[0].status=='par'){
-        //The amount this is bad is proportional to the pokemon's speed relative to the speeds of opposing pokemon:
-        //-Assume unknown enemy pokemon have a speed stat of 170
-        var enemyspds=[b.enemyTeam[0].getStat('spe',false,false)];
-        for (var i=1; i<b.enemyTeam.length; i++){
-          enemyspds.push(b.enemyTeam[i].getStat('spe',false,false));
-        }
-        for (var i=0; i<6-(b.enemyTeam.length+b.enemiesFainted); i++){
-          enemyspds.push(170);
-        }
-        //-healthyspd=(this pokemon's speed without being paralyzed, including things like choice scarf)
-        var healthyspd=b.sides[b.me].active[0].getStat('spe',false,false)*4;
-        var hnumFaster=0;
-        //-for each enemy pokemon, if( healthyspd > (enemy pokemon's speed) ) {hnum_slower++;}
-        for (var i=0; i<enemyspds.length; i++){
-          if (healthyspd > enemyspds[i]){
-            hnumFaster++;
-          }
-        }
-        var pnumFaster=0;
-        //-for each enemy pokemon, if( healthyspd/4 > (enemy pokemon's speed) ) {pnum_slower++;}
-        for (var i=0; i<enemyspds.length; i++){
-          if (healthyspd/4 >= enemyspds[i]){
-            pnumFaster++;
-          }
-        }
-        var paraimpact=hnumFaster-pnumFaster;
-        if (paraimpact==0){
-          mygotStatusb=0.75;
-        }
-        else if(paraimpact==1){
-          mygotStatusb=1.5;
-        }
-        else if(paraimpact==2){
-          mygotStatusb=2;
-        }
-        else if(paraimpact==3){
-          mygotStatusb=2.5;
-        }
-        else{
-          mygotStatusb=3;
-        }
-      }
-
-      var thgotStatusb=0;
-      /*
-      if(b.sides[1-b.me].active[0].status=='brn'){
-        if(b.sides[1-b.me].active[0].stats.atk>=b.sides[1-b.me].active[0].stats.spa){
-          thgotStatusb=2.5;
-        }
-        else{
-          thgotStatusb=0.5;
-        }
-      }
-      if(b.sides[1-b.me].active[0].status=='tox'){
-        thgotStatusb=2;
-      }
-      if(b.sides[1-b.me].active[0].status=='psn'){
-        thgotStatusb=1;
-      }
-       */
-      if(b.sides[1-b.me].active[0].status=='slp'){
-        if (b.sides[1-b.me].active[0].moves.includes(toId(Tools.getMove('sleeptalk')))){
-          thgotStatusb=0.75;
-        }
-
-        else{
-          thgotStatusb=9;
-        }
-      }
-      //  if(b.sides[1-b.me].active[0].status=='frz'){
-      //  thgotStatusb=3;
-      // }
-      if(b.sides[1-b.me].active[0].status=='par'){
-        if(b.sides[b.me].active[0].getStat('spe',false,false)>b.sides[1-b.me].active[0].getStat('spe',false,false)*4 && b.sides[b.me].active[0].getStat('spe',false,false)<b.sides[1-b.me].active[0].getStat('spe',false,false))
-        {
-          thgotStatusb=9;
-        }
-        else{
-          thgotStatusb=1;
-        }
-      }
-
-
-      var beval = (/*mypb+*/(thgotStatusb/9))-(4*thpb+(mygotStatusb/9))-4*b.turn;
-
+       
+      
+*/    var aeval=evaluateState(a, a.me);
+      var beval=evaluateState(b, b.me);
+     // console.log(aeval);
+     // console.log(beval);
       return aeval>beval;
     }
         );
@@ -620,7 +421,7 @@ class BowlAgent{
       cstate.baseMove = choice;
 
       var badstate = this.getWorstOutcome(cstate, choice, nstate.me);
-      badstate.send=battleSend;
+      //badstate.send=battleSend;
       // console.log(badstate.baseMove);
       if (badstate.isTerminal) {
         //     console.log("a");
@@ -636,7 +437,7 @@ class BowlAgent{
     }
 
 
-    while ((new Date()).getTime() - n <= 15000) {
+    while ((new Date()).getTime() - n <= 19000) {
       if (pQueue.isEmpty()) {
         // console.log('FAILURE!');
         //  console.log("b");
@@ -653,7 +454,8 @@ class BowlAgent{
         var dstate = this.getWorstOutcome(cState, choice, cState.me);
         //dstate.baseMove=;
         if (dstate && dstate.isTerminal) {
-          //       console.log("c");
+          //console.log("c");
+          //console.log("choosing "+dstate.baseMove+" "+evaluateState(dstate, dstate.me));
           this.prevEnemy=this.currentEnemy;
           this.prevChoice=dstate.baseMove;
           this.prevState=nstate;
@@ -669,10 +471,13 @@ class BowlAgent{
     }
     // console.log('oops I timed out!');
     if (!pQueue.isEmpty()) {
+      var bestState=pQueue.deq();
+      //console.log("choosing "+bestState.baseMove+" "+evaluateState(bestState, bestState.me));
+      //console.log(evaluateState(bestState,bestState.me));
       //console.log("d");
       this.prevEnemy=this.currentEnemy;
       // var thing=pQueue.deq().baseMove;
-      this.prevChoice=pQueue.deq().baseMove;
+      this.prevChoice=bestState.baseMove;
       this.prevState=nstate;
       this.prevTurn=[];
       //1console.log(pQueue.deq());
