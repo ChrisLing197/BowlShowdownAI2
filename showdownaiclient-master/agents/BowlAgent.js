@@ -56,14 +56,14 @@ class BowlAgent{
     if(state.sides[player].active[0].status=='psn'){
       mygotStatus=1;
     }
-    */
+     */
     if(state.sides[player].active[0].status=='slp'){
-		if (state.sides[player].active[0].moves.includes(toId(Tools.getMove('sleeptalk')))){
-			mygotStatus=0.75;
-		}
-		else{
-      mygotStatus=3;
-		}
+      if (state.sides[player].active[0].moves.includes(toId(Tools.getMove('sleeptalk')))){
+        mygotStatus=0.75;
+      }
+      else{
+        mygotStatus=3;
+      }
     }
     //if(state.sides[player].active[0].status=='frz'){
     //  mygotStatus=3;
@@ -129,14 +129,14 @@ class BowlAgent{
     if(state.sides[1-player].active[0].status=='psn'){
       thgotStatus=1;
     }
-    */
+     */
     if(state.sides[1-player].active[0].status=='slp'){
       if (state.sides[1-player].active[0].moves.includes(toId(Tools.getMove('sleeptalk')))){
-		  thgotStatus=0.75;
-	  }
-	  else{
-		  thgotStatus=9;
-	  }
+        thgotStatus=0.75;
+      }
+      else{
+        thgotStatus=9;
+      }
     }
     //if(state.sides[1-player].active[0].status=='frz'){
     //  thgotStatus=3;
@@ -298,9 +298,6 @@ class BowlAgent{
 
     var first=this.getFirst();
 
-
-
-
     var changeMoves=false;
 
     //  console.log("first is "+first);
@@ -317,12 +314,7 @@ class BowlAgent{
         if(lastMove!="switch"){
 
           if(Tools.getMove(lastMove).priority==Tools.getMove(toId(this.prevChoice.id)).priority){
-            //  console.log("test of move "+Tools.getMove(toId(this.prevChoice)).name);
-            //  console.log("prev speed of ours is "+this.prevState.sides[this.prevState.me].active[0].stats.spe);
-            //  console.log("prev speed of enemy is "+this.enemyTeam[this.prevEnemy].stats.spe);
-
-
-
+  
 
             var ourBoosts=this.prevState.sides[this.prevState.me].active[0].boosts;
             var enBoosts=this.prevState.sides[1-this.prevState.me].active[0].boosts;
@@ -360,33 +352,9 @@ class BowlAgent{
         }
       }
     }
-    /*if(changeMoves){
-
-          var oppChoices = this.getOptions(nstate, 1 - nstate.me);
-
-          console.log(this.enemyTeam[this.currentEnemy].species +" "+ nstate.sides[1-nstate.me].active[0].species);
-          /*
-          for (var choice in oppChoices) {
-            console.log(choice);
-          }
-
-          console.log("Moves to be copied "+this.enemyTeam[this.currentEnemy].moves+"\n");
-          console.log("original "+nstate.sides[1-nstate.me].active[0].moves);
-        }
-     */
+    
     nstate.sides[1-nstate.me].active[0]=this.enemyTeam[this.currentEnemy];
-    //if(changeMoves){
-    // var oppChoices = this.getOptions(nstate, 1 - nstate.me);
-    // console.log("printing updated");
-    // for (var choice in oppChoices) {
-    //  console.log(choice);
-    //  if(choice.startsWith('switch')){
-    //    console.log("kek");
-    //  }
-    //}
-    // console.log("moves "+nstate.sides[1-nstate.me].active[0].moves+" "+nstate.sides[1-nstate.me].active[0].moves.length);
-
-    //}
+    
     nstate.enemyTeam=this.enemyTeam;
     nstate.enemiesFainted=this.enemiesFainted;
     var pQueue = new PriorityQueue(function (a, b) {
@@ -425,15 +393,15 @@ class BowlAgent{
       {
         mygotStatus=1;
       }
-      */
+       */
       if(a.sides[a.me].active[0].status=='slp')
-		  if (a.sides[a.me].active[0].moves.includes(toId(Tools.getMove('sleeptalk')))){
-			  mygotStatus=0.75;
-		  }
-  
-		  else{
-			mygotStatus=3;
-		  }
+        if (a.sides[a.me].active[0].moves.includes(toId(Tools.getMove('sleeptalk')))){
+          mygotStatus=0.75;
+        }
+
+        else{
+          mygotStatus=3;
+        }
       //if(a.sides[a.me].active[0].status=='frz')
       //Are we sure we should even be checking for this?
       //{
@@ -500,20 +468,20 @@ class BowlAgent{
       if(a.sides[1-a.me].active[0].status=='psn'){
         thgotStatus=1;
       }
-      */
+       */
       if(a.sides[1-a.me].active[0].status=='slp'){
         if (a.sides[1-a.me].active[0].moves.includes(toId(Tools.getMove('sleeptalk')))){
-			thgotStatus=0.75;
-		}
-		else {
-			thgotStatus=9;
-		}
+          thgotStatus=0.75;
+        }
+        else {
+          thgotStatus=9;
+        }
       }
       //if(a.sides[1-a.me].active[0].status=='frz'){
       //  thgotStatus=3;
       //}
       if(a.sides[1-a.me].active[0].status=='par'){
-        if(a.sides[a.me].active[0].getStat('spe',false,false)>a.sides[1-player].active[0].getStat('spe',false,false)*4 && a.sides[a.me].active[0].getStat('spe',false,false)<a.sides[1-player].active[0].getStat('spe',false,false))
+        if(a.sides[a.me].active[0].getStat('spe',false,false)>a.sides[1-a.me].active[0].getStat('spe',false,false)*4 && a.sides[a.me].active[0].getStat('spe',false,false)<a.sides[1-a.me].active[0].getStat('spe',false,false))
         {
           thgotStatus=9;
         }
@@ -543,15 +511,15 @@ class BowlAgent{
       if(b.sides[b.me].active[0].status=='psn'){
         mygotStatusb=1;
       }
-      */
+       */
       if(b.sides[b.me].active[0].status=='slp'){
         if (b.sides[b.me].active[0].moves.includes(toId(Tools.getMove('sleeptalk')))){
-			mygotStatusb=0.75;
-		}
-		
-		else{
-			mygotStatusb=3;
-		}
+          mygotStatusb=0.75;
+        }
+
+        else{
+          mygotStatusb=3;
+        }
       }
       //if(b.sides[b.me].active[0].status=='frz'){
       //  mygotStatusb=3;
@@ -616,21 +584,21 @@ class BowlAgent{
       if(b.sides[1-b.me].active[0].status=='psn'){
         thgotStatusb=1;
       }
-      */
+       */
       if(b.sides[1-b.me].active[0].status=='slp'){
         if (b.sides[1-b.me].active[0].moves.includes(toId(Tools.getMove('sleeptalk')))){
-			thgotStatusb=0.75;
-		}
-		
-		else{
-			thgotStatusb=9;
-		}
+          thgotStatusb=0.75;
+        }
+
+        else{
+          thgotStatusb=9;
+        }
       }
       //  if(b.sides[1-b.me].active[0].status=='frz'){
       //  thgotStatusb=3;
       // }
       if(b.sides[1-b.me].active[0].status=='par'){
-        if(b.sides[b.me].active[0].getStat('spe',false,false)>b.sides[1-player].active[0].getStat('spe',false,false)*4 && b.sides[b.me].active[0].getStat('spe',false,false)<b.sides[1-player].active[0].getStat('spe',false,false))
+        if(b.sides[b.me].active[0].getStat('spe',false,false)>b.sides[1-b.me].active[0].getStat('spe',false,false)*4 && b.sides[b.me].active[0].getStat('spe',false,false)<b.sides[1-b.me].active[0].getStat('spe',false,false))
         {
           thgotStatusb=9;
         }
@@ -644,7 +612,7 @@ class BowlAgent{
 
       return aeval-beval;
     }
-    );
+        );
 
     for (var choice in options) {
       var cstate = nstate.copy();
