@@ -27,7 +27,7 @@ try {
     global.Config = require('./zarel/config/config');
 }
 
-var online = false;
+var online = true;
 
 // Online mode operates very very differently from offline.
 // Naturally, it needs a place to connect to.
@@ -47,8 +47,8 @@ if (online) {
     var attemptLogin = true;
     //  The agent will attempt to initiate this many battles
     var battleCount = 2;
-    var username = 'TeamRocketAI';
-    var password = 'polyai';
+    var username = 'TeamBowlAI';
+    var password = 'c0d1tum';
     // This is where you would put the formats that you are interested in having your AI participate in.
     var formats = ['randombattle', 'randommirror'];
     
@@ -84,7 +84,7 @@ if (online) {
             console.log('Logged in as ' + cuser);
             ws.send('|/join lobby');
             for (var format of formats) {
-                ws.send('|/search ' + format);
+                //ws.send('|/search ' + format);
             }
         }
         else if (tag == 'nametaken') {
@@ -93,7 +93,7 @@ if (online) {
         else if (data.startsWith('\>')) {
             var roomid = data.split("\n")[0].substring(1);
             if (battles.has(roomid) == false) {
-                battles.set(roomid, new InterfaceLayer(roomid, cuser, new WSLayer(this), new OTLAgent()));
+                battles.set(roomid, new InterfaceLayer(roomid, cuser, new WSLayer(this), new BowlAgent()));
                 battleCount--;
                 if (battleCount > 0) {
                     for (var format of formats) {

@@ -154,14 +154,14 @@ class BowlAgent{
     }
 
 
-    return (myp+(thgotStatus/9))-(3*thp+(mygotStatus/9))-0.3*state.turn;
+    return (/*myp+*/(thgotStatus/9))-(4*thp+(mygotStatus/9))-4*state.turn;
   }
 
   getWorstOutcome(state, playerChoice, player) {
     var nstate = state.copy();
     var oppChoices = this.getOptions(nstate, 1 - player);
     var worststate = null;
-    for (var choice in oppChoices) {
+    /*for (var choice in oppChoices) {
       if(choice.startsWith('switch')){
         var cstate = nstate.copy();
         //console.log(choice);
@@ -172,7 +172,7 @@ class BowlAgent{
           worststate = cstate;
         }
       }
-    }
+    }*/
     for(var i=0;i<nstate.sides[1-nstate.me].active[0].moves.length;i++){
       var choice=nstate.sides[1-nstate.me].active[0].moves[i];
       var cstate = nstate.copy();
@@ -491,7 +491,7 @@ class BowlAgent{
       }
 
 
-      var aeval = (myp+(thgotStatus/9))-(3*thp+(mygotStatus/9))-0.3*a.turn;
+      var aeval = (/*myp+*/(thgotStatus/9))-(4*thp+(mygotStatus/9))-4*a.turn;
 
       var mypb = b.sides[b.me].active[0].hp / b.sides[b.me].active[0].maxhp;
       var thpb = b.sides[1 - b.me].active[0].hp / b.sides[1 - b.me].active[0].maxhp;
@@ -608,9 +608,9 @@ class BowlAgent{
       }
 
 
-      var beval = (mypb+(thgotStatusb/9))-(3*thpb+(mygotStatusb/9))-0.3*b.turn;
+      var beval = (/*mypb+*/(thgotStatusb/9))-(4*thpb+(mygotStatusb/9))-4*b.turn;
 
-      return aeval-beval;
+      return aeval>beval;
     }
         );
 
@@ -620,6 +620,7 @@ class BowlAgent{
       cstate.baseMove = choice;
 
       var badstate = this.getWorstOutcome(cstate, choice, nstate.me);
+      badstate.send=battleSend;
       // console.log(badstate.baseMove);
       if (badstate.isTerminal) {
         //     console.log("a");
@@ -635,7 +636,7 @@ class BowlAgent{
     }
 
 
-    while ((new Date()).getTime() - n <= 200) {
+    while ((new Date()).getTime() - n <= 15000) {
       if (pQueue.isEmpty()) {
         // console.log('FAILURE!');
         //  console.log("b");
