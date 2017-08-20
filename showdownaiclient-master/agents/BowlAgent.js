@@ -14,7 +14,7 @@ function evaluateState(state, player){
       return 50-0.6*state.turn;
     }
     if(myp==0){
-      return -3.5-0.6*state.turn;
+      return -3-0.6*state.turn;
     }
     var mygotStatus=0;
     /*

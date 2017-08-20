@@ -27,7 +27,7 @@ try {
     global.Config = require('./zarel/config/config');
 }
 
-var online = true;
+var online = false;
 
 // Online mode operates very very differently from offline.
 // Naturally, it needs a place to connect to.
@@ -177,7 +177,7 @@ else {
     console.time('gametime');
     for (var i = 0; i < 1; i++) {
         var game = new OfflineGame();
-        scores.push(game.playGames(new BowlAgent(), new BFSAgent(), 1, 'competitive'));
+        scores.push(game.playGames(new BowlAgent(), new OTLAgent(), 1, 'competitive'));
         
     }
     console.timeEnd('gametime');
