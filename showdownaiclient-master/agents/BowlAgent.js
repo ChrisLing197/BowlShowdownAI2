@@ -436,7 +436,7 @@ class BowlAgent{
     }
 
 
-    while ((new Date()).getTime() - n <= 19000) {
+    while ((new Date()).getTime() - n <= 15000) {
       if (pQueue.isEmpty()) {
         
         this.prevEnemy=this.currentEnemy;
