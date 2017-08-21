@@ -11,7 +11,7 @@ function evaluateState(state, player){
     var thp = state.sides[1 - player].active[0].hp / state.sides[1 - player].active[0].maxhp;
 
     if(thp<=0){
-      return 50-0.6*state.turn;
+      return 10-0.6*state.turn;
     }
     if(myp<=0){
       return -3-0.6*state.turn;
@@ -172,55 +172,59 @@ class BowlAgent{
     var oppChoices = this.getOptions(nstate, 1 - player);
     var worststate = null;
     var worstChoice=null;
-    
+    var oldAverage=0;
+
     for (var choice in oppChoices) {
-      var cstate = nstate.copy();
-      cstate.myswitch=0;
-      //console.log(cstate);
-      if(playerChoice.startsWith('switch')){
-        //console.log("kek");
-        cstate.myswitch=0.7;
-      }
-      //console.log(Tools.getMove(toId(choice.substring(choice.indexOf(' ')))));
-      cstate.thswitch=0;
-      if(choice.startsWith('switch')){
+      var states=[];
+      var average=0;
+      for(var i=0;i<5;i++){
+        var cstate = nstate.copy();
+        cstate.myswitch=0;
         
-        //console.log(choice);
-        cstate.thswitch=0.7;
-        cstate.choose('p' + (player + 1), playerChoice);
-        cstate.choose('p' + (1 - player + 1), choice);
-        //console.log(choice+" "+evaluateState(cstate,player)+" "+evaluateState(cstate,1-player)+" "+playerChoice);
-        if (worststate == null || evaluateState(cstate,  player) <evaluateState(worststate, player)) {
-          worststate = cstate;
-          worstChoice=choice;
+        if(playerChoice.startsWith('switch')){
+          
+          cstate.myswitch=0.7;
         }
-      }else if(choice.startsWith('move')&&nstate.sides[1-nstate.me].active[0].moves.includes(Tools.getMove(toId(choice.substring(choice.indexOf(' ')))).id)){
-        //console.log(choice);
-        cstate.choose('p' + (player + 1), playerChoice);
-        cstate.choose('p' + (1 - player + 1), choice);
-        //console.log(choice+" "+evaluateState(cstate,player)+" "+evaluateState(cstate,1-player)+" "+playerChoice);
-        if (worststate == null || evaluateState(cstate,  player) <evaluateState(worststate, player)) {
-          worststate = cstate;
-          worstChoice=choice;
+        
+        cstate.thswitch=0;
+        if(choice.startsWith('switch')){
+          
+          //console.log(choice);
+
+          cstate.thswitch=0.7;
+
+          cstate.choose('p' + (player + 1), playerChoice);
+          cstate.choose('p' + (1 - player + 1), choice);
+          //console.log(choice+" "+evaluateState(cstate,player)+" "+evaluateState(cstate,1-player)+" "+playerChoice);
+          
+        }else if(choice.startsWith('move')&&nstate.sides[1-nstate.me].active[0].moves.includes(Tools.getMove(toId(choice.substring(choice.indexOf(' ')))).id)){
+          //console.log(choice);
+          cstate.choose('p' + (player + 1), playerChoice);
+          cstate.choose('p' + (1 - player + 1), choice);
+          //console.log(choice+" "+evaluateState(cstate,player)+" "+evaluateState(cstate,1-player)+" "+playerChoice);
+          
+        }
+        states.push(cstate);
+        average+=evaluateState(cstate,player);
+      }
+      average/=5;
+      var index=-1;
+      var difference=-1;
+      for(var i=0;i<5;i++){
+        if(index<0||Math.abs(evaluateState(states[i],player)-average)<difference){
+          index=i;
+          difference=Math.abs(evaluateState(states[i],player)-average);
         }
       }
+      if (worststate == null || average <oldAverage) {
+          worststate = states[index];
+          worstChoice=choice;
+          oldAverage=average;
+        }
     }
     
-    /*for(var i=0;i<nstate.sides[1-nstate.me].active[0].moves.length;i++){
-      var choice=nstate.sides[1-nstate.me].active[0].moves[i];
-      var cstate = nstate.copy();
-      //console.log(choice);
-
-      cstate.choose('p' + (player + 1), playerChoice);
-      cstate.choose('p' + (1 - player + 1), choice);
-      console.log(choice+" "+evaluateState(cstate,player)+" "+evaluateState(cstate,1-player));
-      if (worststate == null || evaluateState(cstate,  player) < evaluateState(worststate, player)) {
-        worststate = cstate;
-        worstChoice=choice;
-      }
-    }*/
-    if(worststate)
-      //console.log("worst choice is "+worstChoice+" "+evaluateState(worststate,player)+" "+playerChoice);
+    
+    
     return worststate;
   }
 
@@ -243,15 +247,7 @@ class BowlAgent{
     return 0;
   }
 
-  /*changeStringFormat(move){
-      move=move.toLowerCase();
-      move=move.split(" ");
-      var temp="";
-      for(var i=0;i<move.length;i++){
-        temp+=move[i];
-      }
-      return temp;
-    }*/
+  
 
   getLastOpponentMove(){
     var val ="error";
@@ -348,11 +344,13 @@ class BowlAgent{
 
         //  console.log("the prevChoice is "+this.prevChoice+" and opponent's was "+lastMove);
 
-        if(lastMove!="switch"){
+        if(lastMove!="switch"&&!this.prevChoice.startsWith('switch')){
+            
+            
 
-          if(Tools.getMove(lastMove).priority==Tools.getMove(toId(this.prevChoice.id)).priority){
-  
-
+          if(Tools.getMove(lastMove).priority==Tools.getMove(toId(this.prevChoice.substring(this.prevChoice.indexOf(' ')))).priority){
+            
+            //console.log(lastMove+ " "+this.prevChoice);
             var ourBoosts=this.prevState.sides[this.prevState.me].active[0].boosts;
             var enBoosts=this.prevState.sides[1-this.prevState.me].active[0].boosts;
             let boostTable = [1, 1.5, 2, 2.5, 3, 3.5, 4];
@@ -437,7 +435,7 @@ class BowlAgent{
     }
 
 
-    while ((new Date()).getTime() - n <= 19000) {
+    while ((new Date()).getTime() - n <= 1000) {
       if (pQueue.isEmpty()) {
         // console.log('FAILURE!');
         //  console.log("b");
