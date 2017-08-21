@@ -258,7 +258,7 @@ class BowlAgent{
       if(this.prevTurn[i][2]){
 
         if(!this.prevTurn[i][2].startsWith(this.mySide)&&this.prevTurn[i][2].startsWith("p")){
-          console.log(this.prevTurn[i][1]);
+          //console.log(this.prevTurn[i][1]);
           if(this.prevTurn[i][1]=="switch"){
             val="switch";
             //return "switch";
