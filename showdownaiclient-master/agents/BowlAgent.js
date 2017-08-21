@@ -5,6 +5,8 @@ var BattleSide = require('../zarel/battle-engine').BattleSide;
 var PriorityQueue = require('priorityqueuejs');
 
 
+
+//States are evaluated based on our hp, their hp, our nondamaging status, their nondamaging status, the turn number, and whether we switched or not
 function evaluateState(state, player){
 
     var myp = state.sides[player].active[0].hp / state.sides[player].active[0].maxhp;
@@ -166,18 +168,18 @@ class BowlAgent{
   }
 
   
-
+  //Worst outcome states are averaged to remove states that might have been the result of luck. This minimax agent assumes the opponent chooses the 'best move'
   getWorstOutcome(state, playerChoice, player) {
     var nstate = state.copy();
     var oppChoices = this.getOptions(nstate, 1 - player);
     var worststate = null;
     var worstChoice=null;
     var oldAverage=0;
-
+    var checkTime=5;
     for (var choice in oppChoices) {
       var states=[];
       var average=0;
-      for(var i=0;i<5;i++){
+      for(var i=0;i<checkTime;i++){
         var cstate = nstate.copy();
         cstate.myswitch=0;
         
@@ -207,10 +209,10 @@ class BowlAgent{
         states.push(cstate);
         average+=evaluateState(cstate,player);
       }
-      average/=5;
+      average/=checkTime;
       var index=-1;
       var difference=-1;
-      for(var i=0;i<5;i++){
+      for(var i=0;i<checkTime;i++){
         if(index<0||Math.abs(evaluateState(states[i],player)-average)<difference){
           index=i;
           difference=Math.abs(evaluateState(states[i],player)-average);
@@ -228,7 +230,7 @@ class BowlAgent{
     return worststate;
   }
 
-
+  //This method is used to see who went first last turn
   getFirst(){
 
     for(var i=0;i<this.prevTurn.length;i++){
@@ -248,13 +250,15 @@ class BowlAgent{
   }
 
   
-
+  //This method is used to determine which move was used by the opponent last turn. This method will also change the opponent's ability if that ability is revealed and is different than the current ability
   getLastOpponentMove(){
     var val ="error";
     for(var i=0;i<this.prevTurn.length;i++){
       //console.log("thing "+this.prevTurn[i][2]);
       if(this.prevTurn[i][2]){
+
         if(!this.prevTurn[i][2].startsWith(this.mySide)&&this.prevTurn[i][2].startsWith("p")){
+          console.log(this.prevTurn[i][1]);
           if(this.prevTurn[i][1]=="switch"){
             val="switch";
             //return "switch";
@@ -278,6 +282,26 @@ class BowlAgent{
               this.enemyTeam[this.currentEnemy].abilityData = { id: this.enemyTeam[this.currentEnemy].ability };
             }
           }
+          //Log for some reason does not post this correctly. Due to time constraints, it was not implemented
+          /*
+          else if(this.prevTurn[i][1]=="faint"){
+            var species=Tools.getSpecies(this.prevTurn[i][2].substring(this.prevTurn[i][2].indexOf(" ")+1));
+            console.log(species+" fainted");
+            for(var x=0;x<this.enemyTeam.length;x++){
+              if(species==this.enemyTeam[x].species){
+                
+                if(x==this.prevEnemy){
+                  this.prevEnemy=-1;
+                }
+                this.enemyTeam.splice(x,1);
+                if(x<this.currentEnemy){
+                  this.currentEnemy--;
+                }
+                this.enemiesFainted++;
+              }
+            }
+          }
+          */
         }
 
       }
@@ -288,17 +312,10 @@ class BowlAgent{
 
 
   decide(gameState, options, mySide) {
-    for (var i=0; i<this.enemyTeam.length; i++){
-      if (this.enemyTeam[i].hp == 0){
-        this.enemyTeam.splice(i,1);
-        if (i<this.prevEnemy){
-          this.prevEnemy--;
-        }
-        this.enemiesFainted++;
-      }
-    }
+    
     var d = new Date();
     var n = d.getTime();
+    
     // It is important to start by making a deep copy of gameState.  We want to avoid accidentally modifying the gamestate.
     var nstate = gameState.copy();
     nstate.p1.currentRequest = 'move';
@@ -318,9 +335,9 @@ class BowlAgent{
 
     nstate.send = battleSend;
 
+    
 
-
-
+    //Stores the enemy team so stats, abilty, and moves can be updated
     for(var i=0;i<this.enemyTeam.length;i++){
       if(this.enemyTeam[i].species==nstate.sides[1-nstate.me].active[0].species){
 
@@ -337,17 +354,18 @@ class BowlAgent{
     if(this.prevState){
 
       if(first!=0){
-        //  console.log("turn is "+this.prevTurn[0][2]);
+        
+        //console.log("turn is "+this.prevTurn[0][2]);
         var lastMove=this.getLastOpponentMove();
         //  console.log(Tools.getMove(lastMove).priority);
 
 
         //  console.log("the prevChoice is "+this.prevChoice+" and opponent's was "+lastMove);
 
-        if(lastMove!="switch"&&!this.prevChoice.startsWith('switch')){
+        if(lastMove!="switch"&&!this.prevChoice.startsWith('switch')&&this.prevEnemy>=0){
             
             
-
+          //Update the speed stat to to lowest/highest number it can be if we guessed wrong
           if(Tools.getMove(lastMove).priority==Tools.getMove(toId(this.prevChoice.substring(this.prevChoice.indexOf(' ')))).priority){
             
             //console.log(lastMove+ " "+this.prevChoice);
@@ -367,14 +385,12 @@ class BowlAgent{
           }
 
           lastMove=Tools.getMove(lastMove);
-          //console.log(this.enemyTeam[this.prevEnemy].species);
-          //console.log(lastMove.name+" "+!this.enemyMoves[this.prevEnemy].includes(toId(lastMove))+" "+this.enemyTeam[this.prevEnemy].moves.includes(toId(lastMove)));
+          
           if(!this.enemyMoves[this.prevEnemy].includes(toId(lastMove))&&this.enemyTeam[this.prevEnemy].moves.includes(toId(lastMove))){
             this.enemyMoves[this.prevEnemy].push(toId(lastMove));
 
             if(this.enemyMoves[this.prevEnemy].length==4){
-              //console.log("Established moves");
-              //console.log(this.enemyMoves[this.prevEnemy]);
+             
               this.enemyTeam[this.prevEnemy].moves=this.enemyMoves[this.prevEnemy];
               changeMoves=true;
             }
@@ -383,7 +399,7 @@ class BowlAgent{
 
         }
         else if(lastMove=="error"){
-          throw new Error("Something went badly error error!");
+          //throw new Error("Something went badly error error!");
         }
       }
     }
@@ -393,36 +409,21 @@ class BowlAgent{
     nstate.enemyTeam=this.enemyTeam;
     nstate.enemiesFainted=this.enemiesFainted;
     var pQueue = new PriorityQueue(function (a, b) {
-      /*
-            var myp = a.sides[a.me].active[0].hp / a.sides[a.me].active[0].maxhp;
-            var thp = a.sides[1 - a.me].active[0].hp / a.sides[1 - a.me].active[0].maxhp;
-            var aeval = myp - 3 * thp - 0.3 * a.turn;
-
-            var mypb = b.sides[b.me].active[0].hp / b.sides[b.me].active[0].maxhp;
-            var thpb = b.sides[1 - b.me].active[0].hp / b.sides[1 - b.me].active[0].maxhp;
-            var beval = mypb - 3 * thpb - 0.3 * b.turn;
-
-            return aeval - beval;
-       
-      
-*/    var aeval=evaluateState(a, a.me);
+      var aeval=evaluateState(a, a.me);
       var beval=evaluateState(b, b.me);
-     // console.log(aeval);
-     // console.log(beval);
+     
       return aeval>beval;
-    }
-        );
+      });
 
     for (var choice in options) {
       var cstate = nstate.copy();
-      //console.log(choice);
+      
       cstate.baseMove = choice;
 
       var badstate = this.getWorstOutcome(cstate, choice, nstate.me);
-      //badstate.send=battleSend;
-      // console.log(badstate.baseMove);
+      
       if (badstate.isTerminal) {
-        //     console.log("a");
+        
         this.prevEnemy=this.currentEnemy;
         this.prevChoice=badstate.baseMove;
         this.prevState=nstate;
@@ -435,10 +436,9 @@ class BowlAgent{
     }
 
 
-    while ((new Date()).getTime() - n <= 1000) {
+    while ((new Date()).getTime() - n <= 19000) {
       if (pQueue.isEmpty()) {
-        // console.log('FAILURE!');
-        //  console.log("b");
+        
         this.prevEnemy=this.currentEnemy;
         this.prevChoice=this.fetch_random_key(options);
         this.prevState=nstate;
@@ -450,10 +450,9 @@ class BowlAgent{
       var myTurnOptions = this.getOptions(cState, mySide.id);
       for (var choice in myTurnOptions) {
         var dstate = this.getWorstOutcome(cState, choice, cState.me);
-        //dstate.baseMove=;
+        
         if (dstate && dstate.isTerminal) {
-          //console.log("c");
-          //console.log("choosing "+dstate.baseMove+" "+evaluateState(dstate, dstate.me));
+          
           this.prevEnemy=this.currentEnemy;
           this.prevChoice=dstate.baseMove;
           this.prevState=nstate;
@@ -467,24 +466,21 @@ class BowlAgent{
 
 
     }
-    // console.log('oops I timed out!');
+    
     if (!pQueue.isEmpty()) {
       var bestState=pQueue.deq();
-      //console.log("choosing "+bestState.baseMove+" "+evaluateState(bestState, bestState.me));
-      //console.log(evaluateState(bestState,bestState.me));
-      //console.log("d");
+      
       this.prevEnemy=this.currentEnemy;
-      // var thing=pQueue.deq().baseMove;
+      
       this.prevChoice=bestState.baseMove;
       this.prevState=nstate;
       this.prevTurn=[];
-      //1console.log(pQueue.deq());
-      //console.log(pQueue.isEmpty());
+      
       return this.prevChoice;
     }
-    //console.log("e");
+    
     var choice = this.fetch_random_key(options);
-    //console.log("the choice is "+choice);
+    
     this.prevEnemy=this.currentEnemy;
     this.prevChoice=choice;
     this.prevState=nstate;
@@ -513,6 +509,8 @@ class BowlAgent{
     // If the species only has one ability, then the pokemon's ability can only have the one ability.
     // Barring zoroark, skill swap, and role play nonsense.
     // This will be pretty much how we digest abilities as well
+
+    //We should assume the opposing pokemon has an ability even if that is not the correct ability
     //if (Object.keys(basePokemon.template.abilities).length == 1) {
     basePokemon.baseAbility = toId(basePokemon.template.abilities['0']);
     basePokemon.ability = basePokemon.baseAbility;
