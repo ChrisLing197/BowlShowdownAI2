@@ -10,10 +10,10 @@ function evaluateState(state, player){
     var myp = state.sides[player].active[0].hp / state.sides[player].active[0].maxhp;
     var thp = state.sides[1 - player].active[0].hp / state.sides[1 - player].active[0].maxhp;
 
-    if(thp==0){
+    if(thp<=0){
       return 50-0.6*state.turn;
     }
-    if(myp==0){
+    if(myp<=0){
       return -3-0.6*state.turn;
     }
     var mygotStatus=0;
