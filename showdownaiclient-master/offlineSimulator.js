@@ -25,7 +25,7 @@ class Battle {
         this.room = room;
         this.title = Tools.getFormat(format).name;
         if (!this.title.endsWith(" Battle")) this.title += " Battle";
-
+        
         this.format = toId(format);
         this.started = false;
         this.ended = false;
@@ -50,6 +50,8 @@ class Battle {
 
         this.rqid = '';
         this.inactiveQueued = false;
+        
+        
         
         // SCOTT: What I do here is a sin against humanity.  Nobody should ever do this
         function battleSend(type, data) {
@@ -95,6 +97,7 @@ class Battle {
         lines = lines.split('\n');
         //console.log(lines);
         // console.log('Receive Start!\n' + lines);
+        console.log("rap god "+lines.toString());
         if (!this.gameOver) {
             switch (lines[1]) {
                 case 'update':
@@ -284,6 +287,7 @@ exports.Battle = Battle;
 let cBattle = null;
 
 exports.create = function (format, room) {
+
     cBattle = new Battle(room, format);
     return cBattle;
 };

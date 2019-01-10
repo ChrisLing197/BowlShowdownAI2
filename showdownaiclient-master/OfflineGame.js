@@ -9,8 +9,9 @@ class OfflineLayer {
         var p2n = typeof (agent2.name) !== 'undefined' && agent2.name != p1n ? agent2.name : 'player2';
         var p1wins = 0;
         var p2wins = 0;
+        
         for (var i = 0; i < numgames; i++) {
-            console.log(i);
+            console.log("number of rounds "+i);
             var isComp = (toId(format) == 'competitive');
             format = (isComp ? 'randombattle': format);
             var p1 = { name: p1n, userid: p1n, interface: new InterfaceLayer('test game', p1n, null, agent1)};
@@ -19,21 +20,22 @@ class OfflineLayer {
             roomData.p1 = p1;
             roomData.p2 = p2;
             var Simulator = require('./offlineSimulator');
-            var battle = Simulator.create(format, roomData);
-            // p1.interface = new room.Room('test game', 'test', battle);
-            battle.startGame();
-            if (battle.battle.winner == p1.userid) {
-                p1wins++;
+            
+            if(!isComp){
+                var battle = Simulator.create(format, roomData);
+                //console.log(numgames);
+                // p1.interface = new room.Room('test game', 'test', battle);
+                battle.startGame();
+                if (battle.battle.winner == p1.userid) {
+                    p1wins++;
+                }
+                else if (battle.battle.winner == p2.userid) {
+                    p2wins++;
+                }
+                console.log(battle.battle.winner + ' is the winner!');
             }
-            else if (battle.battle.winner == p2.userid) {
-                p2wins++;
-            }
-            console.log(battle.battle.winner + ' is the winner!');
-            if (isComp) {
-                var teama = battle.battle.sides[0].team;
-                var teamb = battle.battle.sides[1].team;
-                p1.team = teama;
-                p2.team = teamb;
+            else {
+                
 
                 format = 'competitive';
                 for (var j = 0; j < 0; j++) {
@@ -44,6 +46,10 @@ class OfflineLayer {
                     roomData.p1 = p1;
                     roomData.p2 = p2;
                     battle = Simulator.create(format, roomData);
+                    var teama = battle.battle.sides[0].team;
+                    var teamb = battle.battle.sides[1].team;
+                    p1.team = teama;
+                    p2.team = teamb;
                     // p1.interface = new room.Room('test game', 'test', battle);
                     battle.startGame();
                     if (battle.battle.winner == p1.userid) {
